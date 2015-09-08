@@ -36,24 +36,20 @@ func countingMerge(sliceL, sliceR []int) (int, []int) {
 	j := 0
 	var sortSlice []int
 	inversionCount := 0
-	for k := 0; k < (len(sliceL) + len(sliceR)); k++ {
-		if sliceL[i] <= sliceR[j] {
+	for i < len(sliceL) || j < len(sliceR) {
+		if i == len(sliceL) {
+			sortSlice = append(sortSlice, sliceR[j])
+			j++
+		} else if j == len(sliceR) {
 			sortSlice = append(sortSlice, sliceL[i])
-			if i == len(sliceL)-1 {
-				sortSlice = append(sortSlice, sliceR[j:len(sliceR)]...)
-				break
-			} else {
-				i++
-			}
+			i++
+		} else if sliceL[i] <= sliceR[j] {
+			sortSlice = append(sortSlice, sliceL[i])
+			i++
 		} else {
 			sortSlice = append(sortSlice, sliceR[j])
 			inversionCount += len(sliceL) - i
-			if j == len(sliceR)-1 {
-				sortSlice = append(sortSlice, sliceL[i:len(sliceL)]...)
-				break
-			} else {
-				j++
-			}
+			j++
 		}
 	}
 	return inversionCount, sortSlice
@@ -74,7 +70,7 @@ func countingInversions(slice []int) (int, []int) {
 
 func main() {
 	slice := readInputToSlice("input")
-	//slice := []int{1, 3, 5, 2, 4, 6}
+	//slice := []int{1, 2, 3, 4}
 	inversionCount, _ := countingInversions(slice)
 	fmt.Println(inversionCount)
 	//fmt.Println(sortedSlice)
