@@ -31,38 +31,39 @@ func readInputToSlice(filename string) []int {
 	return slice
 }
 
+func swap(slice []int, i, j int) {
+	tmp := slice[i]
+	slice[i] = slice[j]
+	slice[j] = tmp
+}
+
 func quicksort(slice []int, start, end int) int {
-	if (end - start) == 1 {
+	if (end - start) == 0 {
 		return 0
+	} else if (end - start) == 1 {
+		if slice[start] > slice[end] {
+			swap(slice, start, end)
+		}
+		return 1
 	} else {
-		pivot := slice[start]
 		i := start + 1
-		fmt.Println(i)
 		for j := (start + 1); j < (end + 1); j++ {
-			fmt.Println(j)
-			if slice[j] > pivot {
-				fmt.Println(i)
-				fmt.Println(j)
-				fmt.Println("...")
-				tmp := slice[i]
-				slice[i] = slice[j]
-				slice[j] = tmp
+			if slice[j] < slice[start] {
+				swap(slice, i, j)
 				i++
 			}
 		}
-		tmp := slice[i]
-		slice[i] = slice[start]
-		slice[start] = tmp
-		leftCount := quicksort(slice, start, (i - 1))
-		rightCount := quicksort(slice, (i + 1), end)
+		swap(slice, (i - 1), start)
+		leftCount := quicksort(slice, start, (i - 2))
+		rightCount := quicksort(slice, i, end)
 		return end - start + leftCount + rightCount
 	}
 }
 
 func main() {
-	//slice := readInputToSlice("input")
-	slice := []int{2, 1, 4, 6, 3, 7}
+	slice := readInputToSlice("input")
+	//slice := []int{6, 1, 4, 2, 3, 7}
 	count := quicksort(slice, 0, len(slice)-1)
-	fmt.Println(slice)
+	//fmt.Println(slice)
 	fmt.Println(count)
 }
