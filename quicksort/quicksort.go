@@ -54,10 +54,18 @@ func quicksort(slice []int, start, end int, pivotType string) int {
 		} else if pivotType == "end" {
 			pivotPos = end
 		} else if pivotType == "mid" {
+			var midPos int
 			if (end-start+1)%2 == 0 {
-				pivotPos = ((end - start + 1) / 2) - 1 + start
+				midPos = ((end - start + 1) / 2) - 1 + start
 			} else {
-				pivotPos = (end-start)/2 + start
+				midPos = (end-start)/2 + start
+			}
+			if slice[start] > slice[midPos] && slice[midPos] > slice[end] {
+				pivotPos = midPos
+			} else if slice[midPos] > slice[start] && slice[start] > slice[end] {
+				pivotPos = start
+			} else {
+				pivotPos = end
 			}
 		}
 
@@ -76,21 +84,23 @@ func quicksort(slice []int, start, end int, pivotType string) int {
 		//fmt.Println("after ", slice)
 		leftCount := quicksort(slice, start, (i - 2), pivotType)
 		rightCount := quicksort(slice, i, end, pivotType)
-		return end - start + leftCount + rightCount
+		comparCount := end - start
+		return comparCount + leftCount + rightCount
 	}
 }
 
 func main() {
 	slice := readInputToSlice("input")
 	//slice := []int{6, 10, 1, 11, 9, 4, 2, 12, 8, 3, 13, 7}
-	count1 := quicksort(slice, 0, len(slice)-1, "start")
+	count1 := quicksort(slice, 0, len(slice)-1, "first")
 	fmt.Println(count1)
 
-	//	slice = readInputToSlice("input")
-	//	count2 := quicksort(slice, 0, len(slice)-1, "end")
-	//	fmt.Println(count2)
-	//
-	//	slice = readInputToSlice("input")
-	//	count := quicksort(slice, 0, len(slice)-1, "mid")
-	//	fmt.Println(count)
+	slice = readInputToSlice("input")
+	count2 := quicksort(slice, 0, len(slice)-1, "end")
+	fmt.Println(count2)
+
+	slice = readInputToSlice("input")
+	count := quicksort(slice, 0, len(slice)-1, "mid")
+	//fmt.Println(slice)
+	fmt.Println(count)
 }
