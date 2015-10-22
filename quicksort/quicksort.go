@@ -60,12 +60,24 @@ func quicksort(slice []int, start, end int, pivotType string) int {
 			} else {
 				midPos = (end-start)/2 + start
 			}
-			if slice[start] > slice[midPos] && slice[midPos] > slice[end] {
-				pivotPos = midPos
-			} else if slice[midPos] > slice[start] && slice[start] > slice[end] {
-				pivotPos = start
+			if slice[start] > slice[midPos] && slice[start] > slice[end] {
+				if slice[midPos] > slice[end] {
+					pivotPos = midPos
+				} else {
+					pivotPos = end
+				}
+			} else if slice[midPos] > slice[start] && slice[midPos] > slice[end] {
+				if slice[start] > slice[end] {
+					pivotPos = start
+				} else {
+					pivotPos = end
+				}
 			} else {
-				pivotPos = end
+				if slice[start] > slice[midPos] {
+					pivotPos = start
+				} else {
+					pivotPos = midPos
+				}
 			}
 		}
 
