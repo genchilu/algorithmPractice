@@ -2,7 +2,6 @@ package quicksort
 
 
 import (
-	"."
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,7 +26,7 @@ func TestSort(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		quicksort.Sort(testCase.input)
+		Sort(testCase.input)
 
 		assert.Equal(t, testCase.expect, testCase.input);
 	}
