@@ -9,53 +9,52 @@ public class CountingInversions {
             return 0;
         }
 
-        if (input.length <=1) {
-            return 0;
-        }
-
-        return CountWithMergeSort(input, 0, input.length).count;
+        return counting(input).count;
     }
 
-    private static CountInversionsResult CountWithMergeSort(int[] input, int begin, int end) {
-        if((end-begin) == 1) {
+    private static CountInversionsResult counting(int[] input) {
+        if(input.length <= 1) {
             CountInversionsResult countInversionsResult = new CountInversionsResult();
             countInversionsResult.count = 0;
-            countInversionsResult.sortedInput = Arrays.copyOfRange(input, begin, end);
+            countInversionsResult.sortedInput = input;
             return countInversionsResult;
-        } else {
-            int mid = (end+begin)/2;
-            CountInversionsResult lCountInversionsResult = CountWithMergeSort(input, begin, mid);
-            CountInversionsResult rCountInversionsResult = CountWithMergeSort(input, mid, end);
-
-            int i = 0;
-            int j = 0;
-            int count = 0;
-            int[] sortedInput = new int[(end-begin)];
-            int idx = 0;
-
-            while (i < lCountInversionsResult.sortedInput.length || j < rCountInversionsResult.sortedInput.length) {
-                if(i == lCountInversionsResult.sortedInput.length) {
-                    sortedInput[idx] = rCountInversionsResult.sortedInput[j];
-                    j++;
-                } else if(j==rCountInversionsResult.sortedInput.length
-                        || lCountInversionsResult.sortedInput[i] <= rCountInversionsResult.sortedInput[j]) {
-
-                    sortedInput[idx] = lCountInversionsResult.sortedInput[i];
-                    i++;
-                } else {
-                    sortedInput[idx] = rCountInversionsResult.sortedInput[j];
-                    j++;
-                    count += lCountInversionsResult.sortedInput.length - i;
-                }
-                idx ++;
-            }
-
-            CountInversionsResult countInversionsResult = new CountInversionsResult();
-            countInversionsResult.sortedInput = sortedInput;
-            countInversionsResult.count = count + lCountInversionsResult.count + rCountInversionsResult.count;
-
-            return countInversionsResult;
-
         }
+
+        int mid = input.length/2;
+
+        CountInversionsResult lCountInversionsResult =counting(Arrays.copyOfRange(input, 0, mid));
+        CountInversionsResult rCountInversionsResult =counting(Arrays.copyOfRange(input, mid, input.length));
+
+        int count =0;
+        int idx = 0;
+        int lidx = 0;
+        int ridx = 0;
+        int[] mergedSortedInput = new int[input.length];
+        while (lidx < lCountInversionsResult.sortedInput.length || ridx < rCountInversionsResult.sortedInput.length) {
+            if(lidx == lCountInversionsResult.sortedInput.length) {
+                mergedSortedInput[idx] = rCountInversionsResult.sortedInput[ridx];
+                idx++;
+                ridx++;
+            } else if (ridx == rCountInversionsResult.sortedInput.length) {
+                mergedSortedInput[idx] = lCountInversionsResult.sortedInput[lidx];
+                idx++;
+                lidx++;
+            } else if (lCountInversionsResult.sortedInput[lidx] <= rCountInversionsResult.sortedInput[ridx]) {
+                mergedSortedInput[idx] = lCountInversionsResult.sortedInput[lidx];
+                idx++;
+                lidx++;
+            } else {
+                mergedSortedInput[idx] = rCountInversionsResult.sortedInput[ridx];
+                idx++;
+                ridx++;
+                count += lCountInversionsResult.sortedInput.length - lidx;
+            }
+        }
+
+        CountInversionsResult countInversionsResult = new CountInversionsResult();
+        countInversionsResult.sortedInput = mergedSortedInput;
+        countInversionsResult.count = count+lCountInversionsResult.count+rCountInversionsResult.count;
+
+        return countInversionsResult;
     }
 }
