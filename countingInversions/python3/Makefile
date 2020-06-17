@@ -1,2 +1,2 @@
 test:
-	python3 quicksort_test.py
+	python3 countingInversions_test.py
