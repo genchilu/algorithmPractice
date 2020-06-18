@@ -5,93 +5,85 @@ import(
 	"sort"
 )
 
-type Graph struct {
-	edges   map[int][]int
-}
 
-func (g *Graph) AddEdge(from int, to int) {
-	toVertics, ok := g.edges[from]
-	if !ok {
-		g.edges[from] = append([]int{}, to)
-	} else {
-		g.edges[from] = append(toVertics, to)
+func DoKosarajuScc(edges [][]int) map[int][]int {
+	g := make(map[int][]int)
+
+	for _, edge := range edges {
+		fromVertex := edge[0]
+		toVertex := edge[1]
+
+		if toVertices, found := g[fromVertex]; found {
+			g[fromVertex] = append(g[fromVertex], toVertex)
+		} else {
+			g[fromVertex] = []int{toVertex}
+		}
 	}
 
-	_, ok = g.edges[to]
-	if !ok {
-		g.edges[to] = []int{}
-	}
-}
+	isVistited := []bool{}
 
-func DoKosarajuScc(g Graph) map[int][]int {
-	visitRecord := make(map[int]bool)
-	finishTimeStack := []int{}
+	finishStack := []int{}
 
-	// do first dfs
-	for vertex := range g.edges {
-		dfs1st(g, vertex, visitRecord, &finishTimeStack)
+	for v, _ := range(g) {
+		dfsRound1(g, v, isVistited, finishStack)
 	}
 
-	g2 := reverseGraph(g)
+	revG := reverseG(g)
 	
-	componmentMap := make(map[int][]int)
-	visitRecord2rd := make(map[int]bool)
-	for len(finishTimeStack) > 0 {
-		n := len(finishTimeStack) -1
-		currVertex := finishTimeStack[n]
-		finishTimeStack = finishTimeStack[:n]
+
+	for i, _ := range g {
+		isVistited[i] = false
+	}
+
+	componments := make(map[int][]int)
+	for len(finishStack) > 0 {
+		n := len(finishStack)-1
+		v := finishStack[n]
+		finishStack = finishStack[:n]
 		componment := []int{}
-
-		dfs2nd(g2, currVertex, visitRecord2rd, &componment)
-
-		if(len(componment) > 0 ) {
-			//fmt.Printf("rund2, len()>0 start vertex:%d componment: %v\n", currVertex, componment)
-			sort.Ints(componment)
-			componmentMap[componment[0]] = componment
+		dfsRound2(revG, v, isVistited, componment)
+		sort.Ints(componment)
+		if(len(componment) > 0) {
+			componments[componment[0]] = componment
 		}
 	}
 
-	return componmentMap
+	return componments
 }
 
-func dfs1st(g Graph, currVertex int, visitRecord map[int]bool, finishTimeStack *[]int){
-
-	isVisited, ok := visitRecord[currVertex]
-	if !ok || !isVisited{
-		visitRecord[currVertex] = true
-		neighborVertices := g.edges[currVertex]
-		for _, neighborVertex := range neighborVertices {
-			dfs1st(g, neighborVertex, visitRecord, finishTimeStack)
+func dfsRound1(g map[int][]int, fromVertex int, isVistited []bool, finishStack []int) {
+	if (!isVistited[fromVertex]) {
+		isVistited[fromVertex] = true
+		for _, toVertex := range(g[fromVertex]) {
+			dfsRound1(g, toVertex, isVistited, finishStack)
 		}
-
-		*finishTimeStack = append(*finishTimeStack, currVertex)
+		finishStack = append(finishStack, fromVertex)
 	}
 }
 
-
-func dfs2nd(g Graph, currVertex int, visitRecord map[int]bool, componment *[]int){
-
-	isVisited, ok := visitRecord[currVertex]
-	if !ok || !isVisited{
-		*componment = append(*componment, currVertex)
-		visitRecord[currVertex] = true
-		neighborVertices := g.edges[currVertex]
-		for _, neighborVertex := range neighborVertices {
-			dfs2nd(g, neighborVertex, visitRecord, componment)
+func dfsRound2(g map[int][]int, fromVertex int, isVistited []bool, componments []int) {
+	if (!isVistited[fromVertex]) {
+		isVistited[fromVertex] = true
+		for _, toVertex := range(g[fromVertex]) {
+			dfsRound1(g, toVertex, isVistited, componments)
 		}
-	}
+		componments = append(componments, fromVertex)
+	}	
 }
 
-func reverseGraph(g Graph) Graph {
-	g2 := Graph{make(map[int][]int)}
+func reverseG(g map[int][]int) map[int][]int {
+	revG := make(map[int][]int)
 
-	for vertex, neighbors := range g.edges {
-		to := vertex
-		for _, neighbor := range neighbors {
-			from := neighbor
-			g2.AddEdge(from, to)
+	for v, toVertices := range g {
+		for _, toVertex := range(toVertices) {
+			if _, found := revG[toVertex]; found {
+				revG[toVertex] = append(revG[toVertex], v)
+			} else {
+				revG[toVertex] = []int{v}
+			}
 		}
 	}
 
-	return g2
+	return revG
 }
+

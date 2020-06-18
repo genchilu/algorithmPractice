@@ -72,12 +72,8 @@ func TestKosarajuScc(t *testing.T) {
 	}
 	
 	for _, testCase := range testCases {
-		g := Graph{make(map[int][]int)}
-		for _, edge:= range testCase.edges {
-			g.AddEdge(edge[0], edge[1])
-		}
 
-		actualResult := DoKosarajuScc(g)
+		actualResult := DoKosarajuScc(testCase.edges)
 
 		// check componment number 
 		assert.Equal(t, len(testCase.expectComponments), len(actualResult))
