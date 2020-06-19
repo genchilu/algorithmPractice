@@ -1,111 +1,96 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Kosaraju {
-    private class Graph {
-        private Map<Integer, List<Integer>> edges;
-
-        public Graph(){
-            edges = new HashMap<>();
-        }
-
-        public void addEdge(int from, int to) {
-            Integer fromInteger = new Integer(from);
-            Integer toInteger = new Integer(to);
-
-            List<Integer> toVertices = edges.get(fromInteger);
-            if (toVertices == null) {
-                toVertices = new ArrayList<>();
-            }
-            toVertices.add(toInteger);
-            edges.put(fromInteger, toVertices);
-
-            if(edges.get(toInteger) == null) {
-                edges.put(toInteger, new ArrayList<>());
-            }
-        }
-
-        public List<Integer> getNeighboList(Integer vertexI) {
-            return edges.get(vertexI);
-        }
-
-        public Graph getReverseGraph() {
-            Graph g = new Graph();
-            for (Map.Entry<Integer, List<Integer>> entry: edges.entrySet()) {
-                int from = entry.getKey().intValue();
-                for (Integer toI: entry.getValue()) {
-                    int to = toI.intValue();
-                    g.addEdge(to, from);
-                }
-            }
-
-            return g;
-        }
-
-        public Set<Integer> getAllVertices() {
-            return this.edges.keySet();
-        }
-    }
-
     public Kosaraju(){}
 
     public Map<Integer, List<Integer>> doKosarajuScc(int[][] inputEdges) {
+        Map<Integer, List<Integer>> g = new HashMap<>();
 
-        Graph g = new Graph();
         for (int[] edge: inputEdges) {
-            g.addEdge(edge[0], edge[1]);
+            Integer from = new Integer(edge[0]);
+            Integer to = new Integer(edge[1]);
+
+            if (g.get(from) == null) {
+                g.put(from, new ArrayList<>());
+            }
+
+            if (g.get(to) == null) {
+                g.put(to, new ArrayList<>());
+            }
+
+            g.get(from).add(to);
         }
 
-        Stack finishStack = new Stack();
-        Map<Integer, Boolean> isVisitedMap = new HashMap<>();
-        for(Integer vertex: g.getAllVertices()) {
-            dfs1(g, vertex, isVisitedMap, finishStack);
+        Map<Integer, Boolean> isVistited = new HashMap<>();
+
+        Stack<Integer> finishStack = new Stack();
+        for(Integer vertex: g.keySet()) {
+            dfsRound1(g, vertex, isVistited, finishStack);
         }
 
-        Graph gt = g.getReverseGraph();
-        Map<Integer, List<Integer>> components = new HashMap<>();
+        Map<Integer, List<Integer>> revG = reverseG(g);
+        isVistited.clear();
 
-        Map<Integer, Boolean> isVisited2Map = new HashMap<>();
-        while(!finishStack.isEmpty()) {
-            Integer curVertex  = (Integer) finishStack.pop();
+        Map<Integer, List<Integer>> componments = new HashMap<>();
+        while (!finishStack.isEmpty()) {
             List<Integer> componment = new ArrayList<>();
+            dfsRound2(revG, finishStack.pop(), isVistited, componment);
 
-            dfs2(gt, curVertex, isVisited2Map, componment);
-
-            if(componment.size() > 0) {
+            if(componment.size()>0) {
                 Collections.sort(componment);
 
                 Integer lowestVertex = componment.get(0);
-                components.put(lowestVertex, componment);
+                componments.put(lowestVertex, componment);
             }
         }
 
-        return components;
+        return componments;
     }
 
-    private void dfs1(Graph g, Integer currentVertex, Map<Integer, Boolean> visitedMap, Stack finishStack) {
-        Boolean isVisited = visitedMap.get(currentVertex);
-        if(isVisited == null || !isVisited.booleanValue()) {
-            visitedMap.put(currentVertex, Boolean.TRUE);
-
-            List<Integer> allNeighborList = g.getNeighboList(currentVertex);
-            for (Integer neighbor: allNeighborList) {
-                dfs1(g, neighbor, visitedMap, finishStack);
+    private void dfsRound1(Map<Integer, List<Integer>> g, Integer vertex, Map<Integer, Boolean> isVistited, Stack<Integer> finishStack) {
+        if(isVistited.get(vertex) == null) {
+            isVistited.put(vertex, new Boolean(true));
+            List<Integer> toVertices = g.get(vertex);
+            for(Integer toVertex: toVertices) {
+                dfsRound1(g, toVertex, isVistited, finishStack);
             }
-
-            finishStack.push(currentVertex);
+            finishStack.push(vertex);
         }
     }
 
-    private void dfs2(Graph g, Integer currentVertex, Map<Integer, Boolean> visitedMap, List<Integer> componment) {
-        Boolean isVisited = visitedMap.get(currentVertex);
-        if(isVisited == null || !isVisited.booleanValue()) {
-            visitedMap.put(currentVertex, Boolean.TRUE);
-            componment.add(currentVertex);
-            List<Integer> allNeighborList = g.getNeighboList(currentVertex);
-            for (Integer neighbor: allNeighborList) {
-                dfs2(g, neighbor, visitedMap, componment);
+    private Map<Integer, List<Integer>> reverseG(Map<Integer, List<Integer>> g) {
+        Map<Integer, List<Integer>> revG = new HashMap<>();
+
+        for (Integer fromVertex: g.keySet()) {
+            List<Integer> toVertices = g.get(fromVertex);
+
+            for(Integer toVertex: toVertices) {
+                if (revG.get(toVertex) == null) {
+                    revG.put(toVertex, new ArrayList<>());
+                }
+
+                if (revG.get(fromVertex) == null) {
+                    revG.put(fromVertex, new ArrayList<>());
+                }
+
+                revG.get(toVertex).add(fromVertex);
             }
         }
+
+        return revG;
     }
 
+    private void dfsRound2(Map<Integer, List<Integer>> g, Integer vertex, Map<Integer, Boolean> isVistited, List<Integer> componment) {
+        if(isVistited.get(vertex) == null) {
+            isVistited.put(vertex, new Boolean(true));
+            List<Integer> toVertices = g.get(vertex);
+
+            for(Integer toVertex: toVertices) {
+                dfsRound2(g, toVertex, isVistited, componment);
+            }
+
+            componment.add(vertex);
+        }
+    }
 }
