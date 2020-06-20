@@ -1,61 +1,61 @@
 def do_kosaraju_scc(edges):
-
     g = {}
     for edge in edges:
         if edge[0] not in g:
             g[edge[0]] = []
-        if edge[1] not in g:
-            g[edge[1]] = []
         g[edge[0]].append(edge[1])
 
-    is_vistited = {}
-    finish_stack = []
+        if edge[1] not in g:
+            g[edge[1]] = []
     
-    for vertex in g:
-        _dfs1(g, vertex, is_vistited, finish_stack)
+    is_vistited = {}
+    for v in g.keys():
+        is_vistited[v] = False
+    
+    finish_stack = []
+    for v in g.keys():
+        dfs_round1(g, v, is_vistited, finish_stack)
 
-    gt = _reverse_graph(g)
+    for v in g.keys():
+        is_vistited[v] = False
 
-    is_vistited2 = {}
+    rev_g = reverse_g(g)
     componments = {}
-    while len(finish_stack) > 0:
+    while(len(finish_stack) > 0):
+        v = finish_stack.pop()
         componment = []
-        _dfs2(gt, finish_stack.pop(), is_vistited2, componment)
-        
+        dfs_round2(rev_g, v, is_vistited, componment)
+
         if(len(componment) > 0):
             componment.sort()
             componments[componment[0]] = componment
 
-
     return componments
 
+def dfs_round1(g, v, is_vistited, finish_stack):
+    if not is_vistited[v]:
+        is_vistited[v] = True
+        for to_v in g[v]:
+            dfs_round1(g, to_v, is_vistited, finish_stack)
+        finish_stack.append(v)
 
-def _reverse_graph(g):
-    gt = {}
-    for from_vertex in g:
-        if from_vertex not in gt:
-            gt[from_vertex] = []
-        for to_vertex in g[from_vertex]:
-            if to_vertex not in gt:
-                gt[to_vertex] = []
-            gt[to_vertex].append(from_vertex)
-    return gt
+def reverse_g(g):
+    rev_g = {}
+    for from_v in g.keys():
+        for to_v in g[from_v]:
+            if to_v not in rev_g:
+                rev_g[to_v] = []
+            rev_g[to_v].append(from_v)
 
+        if from_v not in rev_g:
+            rev_g[from_v] = []
+    
+    return rev_g
 
-def _dfs1(g, cur_vertex, is_vistited, finish_stack):
-    if cur_vertex not in is_vistited or not is_vistited[cur_vertex]:
-        is_vistited[cur_vertex] = True
-
-        for neighbor in g[cur_vertex]:
-            _dfs1(g, neighbor, is_vistited, finish_stack)
-        
-        finish_stack.append(cur_vertex)
-
-def _dfs2(gt, cur_vertex, is_vistited, componment):
-    if cur_vertex not in is_vistited or not is_vistited[cur_vertex]:
-        is_vistited[cur_vertex] = True
-        componment.append(cur_vertex)
-        for neighbor in gt[cur_vertex]:
-            _dfs2(gt, neighbor, is_vistited, componment)
-
+def dfs_round2(g, v, is_vistited, componment):
+    if not is_vistited[v]:
+        is_vistited[v] = True
+        for to_v in g[v]:
+            dfs_round2(g, to_v, is_vistited, componment)
+        componment.append(v)
 
