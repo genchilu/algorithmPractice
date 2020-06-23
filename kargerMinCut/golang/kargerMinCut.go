@@ -6,112 +6,125 @@ import (
 )
 
 func doMinCut(edges [][]int) int {
-	if (edges == nil || len(edges) == 0) {
-		return 0;
-	}
+	verticesCount := countVertices(edges)
 
 	minCut := len(edges)
-	vertextCount := getVertexCount(edges)
-	//vertextCount = 1
+	for i:=0;i<verticesCount*verticesCount;i++{
+		curMinCut := kargerMinCut(edges)
 
-	for i:=0;i<vertextCount;i++{
-		for j:=0;j<vertextCount;j++{
-			curMinCut := doKargerMinCut(edges, vertextCount)
-			if (curMinCut < minCut) {
-				minCut = curMinCut
-			}
+		if (curMinCut < minCut){
+			minCut = curMinCut;
 		}
+
 	}
-	
-	return minCut;
+	return minCut
 }
 
-func doKargerMinCut(edges [][]int, vertextCount int) int {
-	rand.Seed(time.Now().UnixNano())
-	
-	tmpEdges := make([][]int, len(edges));
-	copy(tmpEdges, edges);
+func countVertices(edges [][]int) int {
+	verticesMap := make(map[int]bool)
 
-	vertexMergeIdxMap := make(map[int]int)
-	revVertexMergeIdxMap := make(map[int][]int)
-
-	for _, edge := range tmpEdges {
-		e1 := edge[0]
-		e2 := edge[1]
-
-		_, ok := vertexMergeIdxMap[e1]
-		if !ok {
-			vertexMergeIdxMap[e1] = e1
+	for _, edge := range edges{
+		if _, ok := verticesMap[edge[0]]; !ok {
+			verticesMap[edge[0]] = true
 		}
 
-		_, ok = revVertexMergeIdxMap[e1]
-		if !ok {
-			revVertexMergeIdxMap[e1] = []int{ e1 }
-		}
-
-		_, ok = vertexMergeIdxMap[e2]
-		if !ok {
-			vertexMergeIdxMap[e2] = e2
-		}
-
-		_, ok = revVertexMergeIdxMap[e2]
-		if !ok {
-			revVertexMergeIdxMap[e2] = []int{ e2 }
+		if _, ok := verticesMap[edge[1]]; !ok {
+			verticesMap[edge[1]] = true
 		}
 	}
+
+	return len(verticesMap)
+}
+
+func kargerMinCut(edges [][]int) int {
+
+	cloneEdges := make([][]int, len(edges))
+	copy(cloneEdges, edges)
+
+
+	verticesMergeIdxMap, mergeIdxVerticesMap, maxVertex:= initVerticesMergeIdxMap(edges)
+	
 
 	mergeCount := 0
-	for mergeCount < (vertextCount-2) {
-		pickIdx := rand.Intn(len(tmpEdges))
-		pickedEdge := tmpEdges[pickIdx]
-		v1 := pickedEdge[0]
-		v2 := pickedEdge[1]
+	for mergeCount < len(verticesMergeIdxMap) -2 {
+		rand.Seed(time.Now().UnixNano())
+		pickedIdx := rand.Intn(len(cloneEdges))
+		pickedEdge := cloneEdges[pickedIdx]
 
-		if(vertexMergeIdxMap[v1] != vertexMergeIdxMap[v2]) {
-			curVertexMergeIdx := vertextCount + mergeCount
+		v0 := pickedEdge[0]
+		mergeIdx0 := verticesMergeIdxMap[v0]
 
-			curV1Idx := vertexMergeIdxMap[v1]
-			curV2Idx := vertexMergeIdxMap[v2]
+		v1 := pickedEdge[1]
+		mergeIdx1 := verticesMergeIdxMap[v1]
 
-			for _, e := range revVertexMergeIdxMap[curV1Idx]{
-				vertexMergeIdxMap[e] = curVertexMergeIdx
+		if (mergeIdx0 != mergeIdx1) {
+			curMergeIdx := maxVertex + mergeCount + 1
+
+			mergeIdxGroup0 := mergeIdxVerticesMap[mergeIdx0]
+			for _, v := range mergeIdxGroup0 {
+				verticesMergeIdxMap[v] = curMergeIdx
 			}
 
-			for _, e := range revVertexMergeIdxMap[curV2Idx]{
-				vertexMergeIdxMap[e] = curVertexMergeIdx
+			mergeIdxGroup1 := mergeIdxVerticesMap[mergeIdx1]
+			for _, v := range mergeIdxGroup1 {
+				verticesMergeIdxMap[v] = curMergeIdx
 			}
-		
-			revVertexMergeIdxMap[curVertexMergeIdx] = append(revVertexMergeIdxMap[curV1Idx], revVertexMergeIdxMap[curV2Idx]...)
-			delete(revVertexMergeIdxMap, v1)
-			delete(revVertexMergeIdxMap, v2)
+			
+			mergeIdxVerticesMap[curMergeIdx] = append(mergeIdxGroup0, mergeIdxGroup1...)
+
+			delete(mergeIdxVerticesMap, mergeIdx0)
+			delete(mergeIdxVerticesMap, mergeIdx1)
 
 			mergeCount++
+
 		}
 
-		tmpEdges = append(tmpEdges[0:pickIdx], tmpEdges[pickIdx+1:]...)
+		cloneEdges = append(cloneEdges[0: pickedIdx], cloneEdges[pickedIdx+1:]...)
 	}
 
-	cutCount := 0
-	for _, edge := range tmpEdges {
-		e1 := edge[0]
-		e2 := edge[1]
-		if(vertexMergeIdxMap[e1] != vertexMergeIdxMap[e2]) {
-			cutCount++
+	count := 0
+	for _, edge := range cloneEdges {
+		v0 := edge[0]
+		mergeIdx0 := verticesMergeIdxMap[v0]
+
+		v1 := edge[1]
+		mergeIdx1 := verticesMergeIdxMap[v1]
+
+		if (mergeIdx0 != mergeIdx1) {
+			count++
 		}
 	}
-
-	return cutCount;
+	return count
 }
 
+func initVerticesMergeIdxMap(edges [][]int) (map[int]int,  map[int][]int, int) {
+	verticesMergeIdxMap := make(map[int]int)
+	mergeIdxVerticesMap := make(map[int][]int)
+	maxVertex := 0
 
+	for _, edge := range edges {
+		v0 := edge[0]
+		v1 := edge[1]
 
+		verticesMergeIdxMap[v0] = v0
+		verticesMergeIdxMap[v1] = v1
 
-func getVertexCount(edges [][]int) int {
-	vertexMap := make(map[int]bool)
-	for _, v := range edges {
-		vertexMap[v[0]] = true
-		vertexMap[v[1]] = true
+		if _, ok := mergeIdxVerticesMap[v0]; !ok {
+			mergeIdxVerticesMap[v0] = []int{v0}
+		}
+		if _, ok := mergeIdxVerticesMap[v1]; !ok {
+			mergeIdxVerticesMap[v1] = []int{v1}
+		}
+
+		if(v0>maxVertex) {
+			maxVertex = v0
+		}
+
+		if(v1>maxVertex) {
+			maxVertex = v1
+		}
 	}
 
-	return len(vertexMap);
+	return verticesMergeIdxMap, mergeIdxVerticesMap, maxVertex;
+
 }
