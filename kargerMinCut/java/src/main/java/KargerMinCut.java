@@ -1,4 +1,7 @@
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class KargerMinCut {
 
@@ -7,107 +10,115 @@ public class KargerMinCut {
             return 0;
         }
 
-        Set vertexSet = getAllVertex(edges);
-        int vertexNum = vertexSet.size();
+        int vertexCount = countVertices(edges);
         int minCut = edges.length;
-        for (int i = 0;i<vertexNum*vertexNum;i++) {
-            int tmpMinCut = kargerMinCut(edges, vertexSet);
-            if(tmpMinCut < minCut) {
-                minCut = tmpMinCut;
+        for(int i = 0;i <vertexCount*vertexCount; i++){
+            int cutMinCut = kargerMinCut(edges);
+            if(cutMinCut < minCut) {
+                minCut = cutMinCut;
             }
         }
         return minCut;
     }
 
-    private static Set<Integer> getAllVertex(int[][] edges) {
-        Set<Integer> vertexSet = new HashSet<>();
+    private static int kargerMinCut(int[][] edges) {
+        List<List<Integer>> cloneEdges = new ArrayList<>();
+        Map<Integer, Integer> vertexMergeIdxMap = new HashMap<>();
+        Map<Integer, List<Integer>> mergeIdxVertexMap = new HashMap<>();
+        int maxVertex = 0;
+
         for (int[] edge: edges) {
-            vertexSet.add(new Integer(edge[0]));
-            vertexSet.add(new Integer(edge[1]));
-        }
-        return vertexSet;
-    }
+            Integer v0 = new Integer(edge[0]);
+            Integer v1 = new Integer(edge[1]);
 
-    private static int kargerMinCut(int[][] edges, Set vertexSet) {
-        Map<Integer, Integer> vertexMergeIdxMap = initVertexMergeMap(vertexSet);
-        Map<Integer, List<Integer>> revVertexMergeIdxMap = initRevVertexMergeMap(vertexSet);
+            if (vertexMergeIdxMap.get(v0) == null) {
+                vertexMergeIdxMap.put(v0, v0);
+            }
+            if (vertexMergeIdxMap.get(v1) == null) {
+                vertexMergeIdxMap.put(v1, v1);
+            }
 
-        List<Integer[]> edgesList = new ArrayList<>(edges.length);
-        for (int[] edge : edges) {
-            edgesList.add(new Integer[]{new Integer(edge[0]), new Integer(edge[1])});
+            if (mergeIdxVertexMap.get(v0) == null) {
+                List<Integer> mergeIdxGroup = new ArrayList<>();
+                mergeIdxGroup.add(v0);
+                mergeIdxVertexMap.put(v0, mergeIdxGroup);
+            }
+            if (mergeIdxVertexMap.get(v1) == null) {
+                List<Integer> mergeIdxGroup = new ArrayList<>();
+                mergeIdxGroup.add(v1);
+                mergeIdxVertexMap.put(v1, mergeIdxGroup);
+            }
+
+            if (edge[0] > maxVertex) {
+                maxVertex = edge[0];
+            }
+
+            if (edge[1] > maxVertex) {
+                maxVertex = edge[1];
+            }
+
+            cloneEdges.add(
+                    Arrays.stream(edge)
+                            .boxed()
+                            .collect(Collectors.toList())
+            );
         }
 
         int mergeCount = 0;
+        while (mergeCount<vertexMergeIdxMap.size()-2) {
+            Random r = new Random();
+            int pickedIdx = r.nextInt(cloneEdges.size());
+            List<Integer> pickledEdge = cloneEdges.get(pickedIdx);
 
-        while(mergeCount < (vertexSet.size()-2)) {
-            Integer curIdx = new Integer(edges.length + mergeCount);
+            Integer v0 = pickledEdge.get(0);
+            Integer mergeIdx0 = vertexMergeIdxMap.get(v0);
 
-            int pickIdx = (int) (Math.random()*edgesList.size());
-            Integer[] pickedEdge = edgesList.get(pickIdx);
+            Integer v1 = pickledEdge.get(1);
+            Integer mergeIdx1 = vertexMergeIdxMap.get(v1);
 
-            Integer v1 = pickedEdge[0];
-            Integer curV1Idx = vertexMergeIdxMap.get(v1);
-            Integer v2 = pickedEdge[1];
-            Integer curV2Idx = vertexMergeIdxMap.get(v2);
-
-            if(curV1Idx.intValue() != curV2Idx.intValue()) {
-
-                for (Integer v: revVertexMergeIdxMap.get(curV1Idx)) {
-                    vertexMergeIdxMap.put(v, curIdx);
-                }
-
-                for (Integer v: revVertexMergeIdxMap.get(curV2Idx)) {
-                    vertexMergeIdxMap.put(v, curIdx);
-                }
-
-
-                List<Integer> mergeIdxGroup = new ArrayList<>();
-                mergeIdxGroup.addAll(revVertexMergeIdxMap.get(curV1Idx));
-                revVertexMergeIdxMap.remove(curV1Idx);
-                mergeIdxGroup.addAll(revVertexMergeIdxMap.get(curV2Idx));
-                revVertexMergeIdxMap.remove(curV2Idx);
-
-                revVertexMergeIdxMap.put(curIdx, mergeIdxGroup);
-
+            if(mergeIdx0.intValue() != mergeIdx1.intValue()) {
                 mergeCount++;
+                Integer curMergeIdx = new Integer(maxVertex + mergeCount);
+
+                List<Integer> mergeIdxGroup0 = mergeIdxVertexMap.get(mergeIdx0);
+                mergeIdxGroup0.forEach( v -> vertexMergeIdxMap.put(v, curMergeIdx));
+
+                List<Integer> mergeIdxGroup1 = mergeIdxVertexMap.get(mergeIdx1);
+                mergeIdxGroup1.forEach( v -> vertexMergeIdxMap.put(v, curMergeIdx));
+
+                mergeIdxVertexMap.remove(mergeIdx0);
+                mergeIdxVertexMap.remove(mergeIdx1);
+
+                mergeIdxGroup0.addAll(mergeIdxGroup1);
+                mergeIdxVertexMap.put(curMergeIdx, mergeIdxGroup0);
             }
 
-            edgesList.remove(pickIdx);
+            cloneEdges.remove(pickedIdx);
         }
 
         int minCut = 0;
-        for(Integer[] edge: edgesList) {
-            if(vertexMergeIdxMap.get(edge[0]).intValue() != vertexMergeIdxMap.get(edge[1]).intValue()) {
+        for (List<Integer> edge: cloneEdges) {
+            Integer v0 = edge.get(0);
+            Integer mergeIdx0 = vertexMergeIdxMap.get(v0);
+
+            Integer v1 = edge.get(1);
+            Integer mergeIdx1 = vertexMergeIdxMap.get(v1);
+
+            if(mergeIdx0.intValue() != mergeIdx1.intValue()) {
                 minCut++;
             }
         }
-
         return minCut;
     }
 
-    private static Map<Integer, Integer> initVertexMergeMap(Set vertexSet) {
-        Map<Integer, Integer> vertexMergeMap = new HashMap<>();
+    private static int countVertices(int[][] edges) {
+        Set<Integer> set = new HashSet<>();
 
-        Iterator<Integer> iter = vertexSet.iterator();
-        while(iter.hasNext()) {
-            Integer vertex = iter.next();
-            vertexMergeMap.put(vertex, vertex);
+        for(int[] edge: edges) {
+            set.add(new Integer(edge[0]));
+            set.add(new Integer(edge[1]));
         }
 
-        return vertexMergeMap;
-    }
-
-    private static Map<Integer, List<Integer>> initRevVertexMergeMap(Set vertexSet) {
-        Map<Integer, List<Integer>> revVertexMergeMap = new HashMap<>();
-
-        Iterator<Integer> iter = vertexSet.iterator();
-        while(iter.hasNext()) {
-            Integer vertex = iter.next();
-            ArrayList<Integer> mergeVertexGroup = new ArrayList<>();
-            mergeVertexGroup.add(vertex);
-            revVertexMergeMap.put(vertex, mergeVertexGroup);
-        }
-
-        return revVertexMergeMap;
+        return set.size();
     }
 }
