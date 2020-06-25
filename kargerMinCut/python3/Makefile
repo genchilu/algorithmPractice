@@ -1,2 +1,2 @@
 test:
-	python3 kosaraju_test.py
+	python3 karger_mincut_test.py
