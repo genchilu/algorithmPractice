@@ -1,39 +1,36 @@
 public class QuickSort {
     public static void sort(int[] input) {
-        if (input != null) {
+        if (input!=null) {
             quicksort(input, 0, input.length);
         }
-
     }
 
-    private static int[] quicksort(int[] input, int begin, int end) {
-        if ((end-begin) > 1) {
+    private static void quicksort(int[] input, int begin, int end) {
+        if((end-begin) > 1) {
             int pivotIdx = begin;
 
-            swap(input, begin, pivotIdx);
-            int finalPivotIdx = begin;
+            swap(input, pivotIdx, begin);
+            pivotIdx = begin;
 
-            for (int i = begin+1; i<end;i++){
-                if(input[i] < input[pivotIdx]) {
-                    swap(input, i, finalPivotIdx+1);
-                    finalPivotIdx++;
+            for(int i=begin+1;i<end;i++){
+                if(input[i] < input[begin]){
+                    pivotIdx++;
+                    swap(input, i, pivotIdx);
                 }
             }
 
-            swap(input, begin, finalPivotIdx);
-
-            quicksort(input, begin, finalPivotIdx);
-            quicksort(input, finalPivotIdx+1, end);
-        }
-
-        return input;
-    }
-
-    private static  void swap(int[] input, int fromIdx, int toIdx) {
-        if(fromIdx!=toIdx) {
-            int tmp = input[fromIdx];
-            input[fromIdx] = input[toIdx];
-            input[toIdx] = tmp;
+            swap(input, begin, pivotIdx);
+            quicksort(input, begin, pivotIdx);
+            quicksort(input, pivotIdx+1, end);
         }
     }
+
+    private static void swap(int[] input, int from, int to) {
+        if(from != to) {
+            int tmp = input[from];
+            input[from] = input[to];
+            input[to] = tmp;
+        }
+    }
+
 }
