@@ -9,11 +9,12 @@ public class CountingInversions {
             return 0;
         }
 
-        return counting(input).count;
+        CountInversionsResult countInversionsResult = count(input);
+        return countInversionsResult.count;
     }
 
-    private static CountInversionsResult counting(int[] input) {
-        if(input.length <= 1) {
+    private static CountInversionsResult count(int[] input) {
+        if(input.length <=1) {
             CountInversionsResult countInversionsResult = new CountInversionsResult();
             countInversionsResult.count = 0;
             countInversionsResult.sortedInput = input;
@@ -21,40 +22,40 @@ public class CountingInversions {
         }
 
         int mid = input.length/2;
+        CountInversionsResult lCountInversionsResult = count(Arrays.copyOfRange(input, 0, mid));
+        CountInversionsResult rCountInversionsResult = count(Arrays.copyOfRange(input, mid, input.length));
 
-        CountInversionsResult lCountInversionsResult =counting(Arrays.copyOfRange(input, 0, mid));
-        CountInversionsResult rCountInversionsResult =counting(Arrays.copyOfRange(input, mid, input.length));
-
-        int count =0;
-        int idx = 0;
         int lidx = 0;
         int ridx = 0;
-        int[] mergedSortedInput = new int[input.length];
-        while (lidx < lCountInversionsResult.sortedInput.length || ridx < rCountInversionsResult.sortedInput.length) {
+        int count = 0;
+        int idx =0;
+        int[] sortedArray = new int[input.length];
+
+        while (lidx<lCountInversionsResult.sortedInput.length || ridx<rCountInversionsResult.sortedInput.length) {
             if(lidx == lCountInversionsResult.sortedInput.length) {
-                mergedSortedInput[idx] = rCountInversionsResult.sortedInput[ridx];
-                idx++;
+                sortedArray[idx] = rCountInversionsResult.sortedInput[ridx];
                 ridx++;
             } else if (ridx == rCountInversionsResult.sortedInput.length) {
-                mergedSortedInput[idx] = lCountInversionsResult.sortedInput[lidx];
-                idx++;
+                sortedArray[idx] = lCountInversionsResult.sortedInput[lidx];
                 lidx++;
             } else if (lCountInversionsResult.sortedInput[lidx] <= rCountInversionsResult.sortedInput[ridx]) {
-                mergedSortedInput[idx] = lCountInversionsResult.sortedInput[lidx];
-                idx++;
+                sortedArray[idx] = lCountInversionsResult.sortedInput[lidx];
                 lidx++;
             } else {
-                mergedSortedInput[idx] = rCountInversionsResult.sortedInput[ridx];
-                idx++;
+                sortedArray[idx] = rCountInversionsResult.sortedInput[ridx];
                 ridx++;
-                count += lCountInversionsResult.sortedInput.length - lidx;
+                count+=(lCountInversionsResult.sortedInput.length - lidx);
             }
+            idx++;
         }
 
         CountInversionsResult countInversionsResult = new CountInversionsResult();
-        countInversionsResult.sortedInput = mergedSortedInput;
-        countInversionsResult.count = count+lCountInversionsResult.count+rCountInversionsResult.count;
+        countInversionsResult.sortedInput = sortedArray;
+        countInversionsResult.count = lCountInversionsResult.count + rCountInversionsResult.count + count;
 
         return countInversionsResult;
+
+
     }
+
 }
