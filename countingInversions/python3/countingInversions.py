@@ -1,36 +1,36 @@
 def countInversions(input):
     if input == None:
         return 0
-    [count, sorted_array] = counting(input)
+    count, sort_inpiut = _count(input)
+
     return count
 
-def counting(input):
-    if len(input) <= 1:
+def _count(input):
+    if (len(input)<2):
         return 0, input
-    
     mid = len(input)//2
-    lcount, linput = counting(input[0: mid])
-    rcount, rinput = counting(input[mid: len(input)])
+    lcount, linput = _count(input[0:mid])
+    rcount, rinput = _count(input[mid:])
 
-    count = 0
     lidx = 0
     ridx = 0
-    merged_input = []
+    count = 0
+    sorted_input = []
 
-    while lidx<len(linput) or ridx <len(rinput):
-        if lidx == len(linput):
-            merged_input.append(rinput[ridx])
-            ridx = ridx +1
-        elif ridx == len(rinput):
-            merged_input.append(linput[lidx])
-            lidx = lidx +1
-        elif linput[lidx] <= rinput[ridx]:
-            merged_input.append(linput[lidx])
-            lidx = lidx +1
+    while lidx < len(linput) or ridx < len(rinput):
+        if (lidx == len(linput)):
+            sorted_input.extend(rinput[ridx:])
+            ridx = len(rinput)
+        elif (ridx == len(rinput)):
+            sorted_input.extend(linput[lidx:])
+            lidx = len(linput)
+        elif (linput[lidx] <= rinput[ridx]):
+            sorted_input.append(linput[lidx])
+            lidx += 1
         else:
-            merged_input.append(rinput[ridx])
-            ridx = ridx +1
-            count = count + len(linput) - lidx
+            sorted_input.append(rinput[ridx])
+            ridx += 1
+            count += len(linput) - lidx
         
-    return (count+lcount+rcount), merged_input
+    return (count+lcount+rcount), sorted_input
 
