@@ -1,89 +1,84 @@
 package kosaraju
 
 import(
-	//"fmt"
 	"sort"
 )
 
 
 func DoKosarajuScc(edges [][]int) map[int][]int {
+	if edges == nil {
+		return make(map[int][]int)
+	}
 	g := make(map[int][]int)
-
-	for _, edge := range edges {
-		fromVertex := edge[0]
-		toVertex := edge[1]
-
-		if toVertices, found := g[fromVertex]; found {
-			g[fromVertex] = append(g[fromVertex], toVertex)
-		} else {
-			g[fromVertex] = []int{toVertex}
+	for _, edge := range(edges) {
+		from := edge[0]
+		to:=edge[1]
+		if _,ok:=g[from];!ok{
+			g[from] = []int{}
 		}
+		g[from] = append(g[from], to)
 	}
 
-	isVistited := []bool{}
-
+	isVistited := make(map[int]bool)
 	finishStack := []int{}
-
-	for v, _ := range(g) {
-		dfsRound1(g, v, isVistited, finishStack)
+	for v,_:=range(g) {
+		dfsRount1(g, v, isVistited, &finishStack)
 	}
 
 	revG := reverseG(g)
-	
-
-	for i, _ := range g {
-		isVistited[i] = false
-	}
-
+	isVistited2 := make(map[int]bool)
 	componments := make(map[int][]int)
+
 	for len(finishStack) > 0 {
-		n := len(finishStack)-1
-		v := finishStack[n]
-		finishStack = finishStack[:n]
+		v := finishStack[len(finishStack)-1]
+		finishStack = finishStack[0:len(finishStack)-1]
 		componment := []int{}
-		dfsRound2(revG, v, isVistited, componment)
-		sort.Ints(componment)
-		if(len(componment) > 0) {
+		dfsRound2(revG, v, isVistited2, &componment)
+
+		if len(componment) > 0 {
+			sort.Ints(componment)
 			componments[componment[0]] = componment
 		}
 	}
-
+	
 	return componments
 }
 
-func dfsRound1(g map[int][]int, fromVertex int, isVistited []bool, finishStack []int) {
-	if (!isVistited[fromVertex]) {
-		isVistited[fromVertex] = true
-		for _, toVertex := range(g[fromVertex]) {
-			dfsRound1(g, toVertex, isVistited, finishStack)
+func dfsRount1(g map[int][]int, curV int, isVistited map[int]bool, finishStack *[]int) {
+	if _, ok := isVistited[curV];!ok {
+		isVistited[curV] = true
+		for _, toV := range(g[curV]) {
+			dfsRount1(g, toV, isVistited, finishStack)
 		}
-		finishStack = append(finishStack, fromVertex)
+		*finishStack = append(*finishStack, curV)
 	}
-}
-
-func dfsRound2(g map[int][]int, fromVertex int, isVistited []bool, componments []int) {
-	if (!isVistited[fromVertex]) {
-		isVistited[fromVertex] = true
-		for _, toVertex := range(g[fromVertex]) {
-			dfsRound1(g, toVertex, isVistited, componments)
-		}
-		componments = append(componments, fromVertex)
-	}	
 }
 
 func reverseG(g map[int][]int) map[int][]int {
 	revG := make(map[int][]int)
 
-	for v, toVertices := range g {
-		for _, toVertex := range(toVertices) {
-			if _, found := revG[toVertex]; found {
-				revG[toVertex] = append(revG[toVertex], v)
-			} else {
-				revG[toVertex] = []int{v}
+	for fromV, toVs := range(g) {
+		for _, v := range(toVs) {
+			if _, ok := revG[v];!ok{
+				revG[v] = []int{}
 			}
+
+			revG[v] = append(revG[v], fromV)
 		}
 	}
 
 	return revG
 }
+
+func dfsRound2(g map[int][]int, curV int, isVistited map[int]bool, componment *[]int) {
+	if _, ok := isVistited[curV];!ok {
+		isVistited[curV] = true
+		for _, toV := range(g[curV]) {
+			dfsRound2(g, toV, isVistited, componment)
+		}
+		*componment = append(*componment, curV)
+	}
+
+}
+
 
