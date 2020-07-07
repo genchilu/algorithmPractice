@@ -1,96 +1,87 @@
+import java.awt.*;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 public class Kosaraju {
     public Kosaraju(){}
 
     public Map<Integer, List<Integer>> doKosarajuScc(int[][] inputEdges) {
         Map<Integer, List<Integer>> g = new HashMap<>();
-
         for (int[] edge: inputEdges) {
-            Integer from = new Integer(edge[0]);
-            Integer to = new Integer(edge[1]);
-
-            if (g.get(from) == null) {
+            Integer from = Integer.valueOf(edge[0]);
+            Integer to = Integer.valueOf(edge[1]);
+            if(g.get(from) == null) {
                 g.put(from, new ArrayList<>());
             }
-
-            if (g.get(to) == null) {
+            if(g.get(to) == null) {
                 g.put(to, new ArrayList<>());
             }
-
             g.get(from).add(to);
         }
 
         Map<Integer, Boolean> isVistited = new HashMap<>();
-
-        Stack<Integer> finishStack = new Stack();
-        for(Integer vertex: g.keySet()) {
-            dfsRound1(g, vertex, isVistited, finishStack);
+        Stack<Integer> finishStack = new Stack<>();
+        for (Integer v: g.keySet()) {
+            dfsRound1(g, v, isVistited, finishStack);
         }
 
         Map<Integer, List<Integer>> revG = reverseG(g);
-        isVistited.clear();
-
+        Map<Integer, Boolean> isVistited2 = new HashMap<>();
         Map<Integer, List<Integer>> componments = new HashMap<>();
-        while (!finishStack.isEmpty()) {
+
+        while(!finishStack.isEmpty()) {
             List<Integer> componment = new ArrayList<>();
-            dfsRound2(revG, finishStack.pop(), isVistited, componment);
+            dfsRound2(revG, finishStack.pop(), isVistited2, componment);
 
-            if(componment.size()>0) {
+            if(componment.size() >0) {
                 Collections.sort(componment);
-
-                Integer lowestVertex = componment.get(0);
-                componments.put(lowestVertex, componment);
+                componments.put(componment.get(0), componment);
             }
         }
+
 
         return componments;
     }
 
-    private void dfsRound1(Map<Integer, List<Integer>> g, Integer vertex, Map<Integer, Boolean> isVistited, Stack<Integer> finishStack) {
-        if(isVistited.get(vertex) == null) {
-            isVistited.put(vertex, new Boolean(true));
-            List<Integer> toVertices = g.get(vertex);
-            for(Integer toVertex: toVertices) {
-                dfsRound1(g, toVertex, isVistited, finishStack);
+
+    private static void dfsRound1(Map<Integer, List<Integer>> g, Integer cutV, Map<Integer, Boolean> isVistited, Stack<Integer> finishStack) {
+        if (isVistited.get(cutV) == null) {
+            isVistited.put(cutV, Boolean.TRUE);
+
+            for (Integer toVs: g.get(cutV)) {
+                dfsRound1(g, toVs, isVistited, finishStack);
             }
-            finishStack.push(vertex);
+
+            finishStack.push(cutV);
         }
     }
 
-    private Map<Integer, List<Integer>> reverseG(Map<Integer, List<Integer>> g) {
+    private static Map<Integer, List<Integer>> reverseG(Map<Integer, List<Integer>> g) {
         Map<Integer, List<Integer>> revG = new HashMap<>();
 
-        for (Integer fromVertex: g.keySet()) {
-            List<Integer> toVertices = g.get(fromVertex);
-
-            for(Integer toVertex: toVertices) {
-                if (revG.get(toVertex) == null) {
-                    revG.put(toVertex, new ArrayList<>());
+        for(Integer from: g.keySet()) {
+            if (revG.get(from) == null) {
+                revG.put(from, new ArrayList<>());
+            }
+            for(Integer to: g.get(from)) {
+                if (revG.get(to) == null) {
+                    revG.put(to, new ArrayList<>());
                 }
-
-                if (revG.get(fromVertex) == null) {
-                    revG.put(fromVertex, new ArrayList<>());
-                }
-
-                revG.get(toVertex).add(fromVertex);
+                revG.get(to).add(from);
             }
         }
 
         return revG;
     }
 
-    private void dfsRound2(Map<Integer, List<Integer>> g, Integer vertex, Map<Integer, Boolean> isVistited, List<Integer> componment) {
-        if(isVistited.get(vertex) == null) {
-            isVistited.put(vertex, new Boolean(true));
-            List<Integer> toVertices = g.get(vertex);
-
-            for(Integer toVertex: toVertices) {
-                dfsRound2(g, toVertex, isVistited, componment);
+    private static void dfsRound2(Map<Integer, List<Integer>> g, Integer curV, Map<Integer, Boolean> isVistited, List<Integer> componment) {
+        if(isVistited.get(curV) == null) {
+            isVistited.put(curV, Boolean.TRUE);
+            for(Integer v: g.get(curV)) {
+                dfsRound2(g, v, isVistited, componment);
             }
 
-            componment.add(vertex);
+            componment.add(curV);
         }
     }
 }
