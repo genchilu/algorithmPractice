@@ -5,90 +5,88 @@ def do_min_cut(edges):
         return 0
 
     vertex_count = _count_vertex(edges)
+    
     min_cut = len(edges)
     for i in range(vertex_count*vertex_count):
-        cur_min_cut = _karger_min_cut(edges)
-        if cur_min_cut < min_cut:
-            min_cut = cur_min_cut
+        tmp_min_cut = _karger_min_cut(edges)
+        if tmp_min_cut < min_cut:
+            min_cut = tmp_min_cut
 
     return min_cut
 
-
-def _count_vertex(edges):
-    vertex_set = {}
-    for edge in edges:
-        if edge[0] not in vertex_set:
-            vertex_set[edge[0]] = True
-        if edge[1] not in vertex_set:
-            vertex_set[edge[1]] = True
-
-    return len(vertex_set)
-
 def _karger_min_cut(edges):
     clone_edges = edges.copy()
-    
-    [max_vertext, vertex_mergeid_map, mergeid_vertices_map] = init_vertex_mergeid_map(edges)
 
+    vertex_mergeidx_map, mergeidx_vertex_map, max_vertex = _init_vertex_mergeidx_map(clone_edges)
     merge_count = 0
-    while merge_count < len(vertex_mergeid_map) -2:
-        picked_idx = randrange(len(clone_edges))
-        picked_edge = clone_edges[picked_idx]
+    while merge_count < (len(vertex_mergeidx_map) -2):
+        pick_idx = randrange(len(clone_edges))
+        pick_edge = clone_edges[pick_idx]
+        v0 = pick_edge[0]
+        v1 = pick_edge[1]
+        mergeidx0 = vertex_mergeidx_map[v0]
+        mergeidx1 = vertex_mergeidx_map[v1]
 
-        v0 = picked_edge[0]
-        mergeid0 = vertex_mergeid_map[v0]
+        if mergeidx0 != mergeidx1 :
+            merge_count=merge_count+1
+            cur_mergeidx_idx = merge_count + max_vertex
 
-        v1 = picked_edge[1]
-        mergeid1 = vertex_mergeid_map[v1]
+            for v in mergeidx_vertex_map[mergeidx0]:
+                vertex_mergeidx_map[v] = cur_mergeidx_idx
+            for v in mergeidx_vertex_map[mergeidx1]:
+                vertex_mergeidx_map[v] = cur_mergeidx_idx
 
-        if mergeid0 != mergeid1:
-            merge_count = merge_count+1
-            cur_mergeid = merge_count+max_vertext
+            mergeidx_group0 = mergeidx_vertex_map[mergeidx0]
+            mergeidx_group1 = mergeidx_vertex_map[mergeidx1]
 
-            mergeid0_vertices = mergeid_vertices_map[mergeid0]
-            mergeid1_vertices = mergeid_vertices_map[mergeid1]
+            mergeidx_group0.extend(mergeidx_group1)
+            mergeidx_vertex_map[cur_mergeidx_idx] = mergeidx_group0
 
-            for v in mergeid0_vertices:
-                vertex_mergeid_map[v] = cur_mergeid
-            for v in mergeid1_vertices:
-                vertex_mergeid_map[v] = cur_mergeid
+            del mergeidx_vertex_map[mergeidx0]
+            del mergeidx_vertex_map[mergeidx1]
 
-            mergeid0_vertices.extend(mergeid1_vertices)
-            mergeid_vertices_map[cur_mergeid] = mergeid0_vertices
-
-            del mergeid_vertices_map[mergeid0]
-            del mergeid_vertices_map[mergeid1]
-
-        del clone_edges[picked_idx]
+        del clone_edges[pick_idx]
 
     min_cut = 0
     for edge in clone_edges:
-        mergeid0 = vertex_mergeid_map[edge[0]]
-        mergeid1 = vertex_mergeid_map[edge[1]]
-
-        if mergeid0 != mergeid1:
+        v0 = edge[0]
+        v1 = edge[1]
+        if vertex_mergeidx_map[v0] != vertex_mergeidx_map[v1]:
             min_cut = min_cut+1
 
     return min_cut
 
-def init_vertex_mergeid_map(edges):
-    vertex_mergeid_map = {}
-    mergeid_vertices_map = {}
-    max_vertext = 0
+
+
+def _init_vertex_mergeidx_map(edges):
+    vertex_mergeidx_map = {}
+    mergeidx_vertex_map ={}
+    max_vertex = 0
 
     for edge in edges:
-        if edge[0] not in vertex_mergeid_map:
-            vertex_mergeid_map[edge[0]] = edge[0]
-        if edge[1] not in vertex_mergeid_map:
-            vertex_mergeid_map[edge[1]] = edge[1]
+        v0 = edge[0]
+        v1 = edge[1]
 
-        if edge[0] not in mergeid_vertices_map:
-            mergeid_vertices_map[edge[0]] = [edge[0]]
-        if edge[1] not in mergeid_vertices_map:
-            mergeid_vertices_map[edge[1]] = [edge[1]]
+        if v0 not in vertex_mergeidx_map:
+            vertex_mergeidx_map[v0] = v0
+        if v1 not in vertex_mergeidx_map:
+            vertex_mergeidx_map[v1] = v1
+        
+        if v0 not in mergeidx_vertex_map:
+            mergeidx_vertex_map[v0] = [v0]
+        if v1 not in mergeidx_vertex_map:
+            mergeidx_vertex_map[v1] = [v1]
 
-        if edge[0] > max_vertext:
-            max_vertext = edge[0]
-        if edge[1] > max_vertext:
-            max_vertext = edge[1]
+        if v0 > max_vertex:
+            max_vertex = v0
+        if v1 > max_vertex:
+            max_vertex = v1
 
-    return max_vertext, vertex_mergeid_map, mergeid_vertices_map
+    return vertex_mergeidx_map, mergeidx_vertex_map, max_vertex
+
+def _count_vertex(edges):
+    vertex_set = set()
+    for edge in edges:
+        vertex_set.add(edge[0])
+        vertex_set.add(edge[1])
+    return len(vertex_set)
