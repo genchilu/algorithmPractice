@@ -3,28 +3,29 @@ package quicksort
 //import "fmt"
 
 func Sort(input []int){
-	if (input != nil || len(input)> 0) {
-		quick(input, 0, len(input))
+	if (input!=nil && len(input)>1) {
+		quicksort(input, 0, len(input))
 	}
 }
 
-func quick(input []int, begin, end int) {
-	if ((end-begin) > 1 ) {
-		pivotIdx := begin;
+func quicksort(input []int, begin, end int) {
+	if ((end-begin) > 1) {
+		pivotIdx := begin
 
 		swap(input, pivotIdx, begin)
 		pivotIdx = begin
 
-		for i:=(begin+1);i<end;i++{
+		for i:=(begin+1);i<end;i++ {
 			if(input[i] < input[begin]) {
 				pivotIdx++
-				swap(input, pivotIdx, i)
+				swap(input, i, pivotIdx)
 			}
 		}
-		swap(input, pivotIdx, begin)
 
-		quick(input, begin, pivotIdx)
-		quick(input, pivotIdx+1, end)
+		swap(input, begin, pivotIdx)
+
+		quicksort(input, begin, pivotIdx)
+		quicksort(input, pivotIdx+1, end)
 	}
 }
 
@@ -34,4 +35,4 @@ func swap(input []int, from, to int) {
 		input[from] = input[to]
 		input[to] = tmp
 	}
-} 
+}
