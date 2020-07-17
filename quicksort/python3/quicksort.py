@@ -1,29 +1,27 @@
 def sort(input):
-    if input is not None:
+    if input != None and len(input) > 1:
         _quicksort(input, 0, len(input))
-
 
 def _quicksort(input, begin, end):
     if (end-begin) > 1:
-        pivotIdx = begin
-        
-        _swap(input, pivotIdx, begin)
-        pivotIdx = begin
+        pivot = begin
+        _swap(input, pivot, begin)
+        pivot = begin
 
         for i in range(begin+1, end):
             if input[i] < input[begin]:
-                pivotIdx = pivotIdx +1
-                _swap(input, pivotIdx, i)
+                pivot = pivot+1
+                _swap(input, pivot, i)
         
-        _swap(input, begin, pivotIdx)
-        _quicksort(input, begin, pivotIdx)
-        _quicksort(input, pivotIdx+1, end)
+        _swap(input, begin, pivot)
 
+        _quicksort(input, begin, pivot)
+        _quicksort(input, pivot+1, end)
 
-def _swap(input, a, b):
-    if a != b:
-        tmp = input[a]
-        input[a] = input[b]
-        input[b] = tmp
+def _swap(input, from_idx, to_idx):
+    if from_idx != to_idx:
+        tmp = input[from_idx]
+        input[from_idx] = input[to_idx]
+        input[to_idx] = tmp
 
         
