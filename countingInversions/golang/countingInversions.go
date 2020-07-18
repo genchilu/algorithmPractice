@@ -3,41 +3,45 @@ package countingInversion
 //import "fmt"
 
 func CountInversions(input []uint) int {
-	if (input == nil || len(input) <2) {
+
+	if (input == nil || len(input) <=1) {
 		return 0
 	}
-	_, count:=count(input)
+
+	count, _ := counting(input)
 	return count
 }
 
-func count(input []uint) ([]uint, int) {
-	if (len(input) < 2) {
-		return input, 0
-	}
-	mid := len(input)/2
-	linput, lcount := count(input[0:mid])
-	rinput, rcount := count(input[mid:])
+func counting(input []uint) (int, []uint) {
 
-	count :=0
+	if (len(input) <= 1) {
+		return 0, input
+	}
+
+	mid := len(input)/2
+	lcount, lresult := counting(input[0: mid])
+	rcount, rresult := counting(input[mid:])
+
 	lidx :=0
 	ridx :=0
-	sortedInput := []uint{}
-	for lidx <len(linput) || ridx < len(rinput) {
-		if (lidx == len(linput)) {
-			sortedInput = append(sortedInput, rinput[ridx:]...)
-			ridx = len(rinput)
-		} else if (ridx == len(rinput)) {
-			sortedInput = append(sortedInput, linput[lidx:]...)
-			lidx = len(linput)
-		} else if (linput[lidx] <= rinput[ridx]) {
-			sortedInput = append(sortedInput, linput[lidx])
+	count := 0
+	result := []uint{}
+	for lidx < len(lresult) || ridx < len(rresult) {
+		if lidx == len(lresult) {
+			result = append(result, rresult[ridx:]...)
+			ridx = len(rresult)
+		} else if ridx== len(rresult) {
+			result = append(result, lresult[lidx:]...)
+			lidx = len(lresult)
+		} else if lresult[lidx] <= rresult[ridx] {
+			result = append(result, lresult[lidx])
 			lidx++
 		} else {
-			sortedInput = append(sortedInput, rinput[ridx])
+			result = append(result, rresult[ridx])
 			ridx++
-			count+=len(linput) - lidx
+			count += len(lresult) - lidx
 		}
 	}
-	return sortedInput, count+lcount+rcount
-}
 
+	return (count+lcount+rcount), result
+}
