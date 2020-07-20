@@ -10,7 +10,7 @@ public class CountInversionsTest {
     @Test
     @Parameters
     public void testCountInversions(int[] input, int expect) {
-        int actualResult = CountingInversions.CountInversions(input);
+        int actualResult = CountingInversions.countInversions(input);
 
         assertEquals(expect, actualResult);
 

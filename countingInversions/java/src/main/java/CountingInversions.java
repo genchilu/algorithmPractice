@@ -4,58 +4,64 @@ import java.util.List;
 
 public class CountingInversions {
 
-    public static int CountInversions(int[] input) {
-        if (input == null) {
+    public static int countInversions(int[] input) {
+
+        if(input == null || input.length <=1) {
             return 0;
         }
 
-        CountInversionsResult countInversionsResult = count(input);
+        CountInversionsResult countInversionsResult = counting(input);
+
         return countInversionsResult.count;
     }
 
-    private static CountInversionsResult count(int[] input) {
+    private static CountInversionsResult counting(int[] input) {
         if(input.length <=1) {
             CountInversionsResult countInversionsResult = new CountInversionsResult();
             countInversionsResult.count = 0;
             countInversionsResult.sortedInput = input;
+
             return countInversionsResult;
         }
 
         int mid = input.length/2;
-        CountInversionsResult lCountInversionsResult = count(Arrays.copyOfRange(input, 0, mid));
-        CountInversionsResult rCountInversionsResult = count(Arrays.copyOfRange(input, mid, input.length));
 
+        CountInversionsResult lCountInversionsResult = counting(Arrays.copyOfRange(input, 0, mid));
+        int lCount = lCountInversionsResult.count;
+        int[] linput = lCountInversionsResult.sortedInput;
+
+        CountInversionsResult rCountInversionsResult = counting(Arrays.copyOfRange(input, mid, input.length));
+        int rCount = rCountInversionsResult.count;
+        int[] rinput = rCountInversionsResult.sortedInput;
+
+        int count = 0;
+        int idx = 0;
         int lidx = 0;
         int ridx = 0;
-        int count = 0;
-        int idx =0;
         int[] sortedArray = new int[input.length];
 
-        while (lidx<lCountInversionsResult.sortedInput.length || ridx<rCountInversionsResult.sortedInput.length) {
-            if(lidx == lCountInversionsResult.sortedInput.length) {
-                sortedArray[idx] = rCountInversionsResult.sortedInput[ridx];
+        while (lidx < linput.length || ridx < rinput.length) {
+            if (lidx == linput.length) {
+                sortedArray[idx] = rinput[ridx];
                 ridx++;
-            } else if (ridx == rCountInversionsResult.sortedInput.length) {
-                sortedArray[idx] = lCountInversionsResult.sortedInput[lidx];
+            } else if (ridx == rinput.length) {
+                sortedArray[idx] = linput[lidx];
                 lidx++;
-            } else if (lCountInversionsResult.sortedInput[lidx] <= rCountInversionsResult.sortedInput[ridx]) {
-                sortedArray[idx] = lCountInversionsResult.sortedInput[lidx];
+            } else if (linput[lidx] <= rinput[ridx]) {
+                sortedArray[idx] = linput[lidx];
                 lidx++;
             } else {
-                sortedArray[idx] = rCountInversionsResult.sortedInput[ridx];
+                sortedArray[idx] = rinput[ridx];
                 ridx++;
-                count+=(lCountInversionsResult.sortedInput.length - lidx);
+                count += linput.length-lidx;
             }
             idx++;
         }
 
         CountInversionsResult countInversionsResult = new CountInversionsResult();
         countInversionsResult.sortedInput = sortedArray;
-        countInversionsResult.count = lCountInversionsResult.count + rCountInversionsResult.count + count;
-
+        countInversionsResult.count = count+lCount+rCount;
         return countInversionsResult;
-
-
     }
 
 }
