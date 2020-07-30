@@ -10,7 +10,18 @@ func TestKosarajuScc(t *testing.T) {
 		edges [][]int
 		expectComponments [][]int
 	} {
-			// case1
+			{
+				// edge
+				nil,
+				// expect componment
+				[][]int{},
+			},
+			{
+				// edge
+				[][]int{},
+				// expect componment
+				[][]int{},
+			},
 			{
 				// edge
 				[][]int{

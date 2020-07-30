@@ -6,79 +6,81 @@ import(
 
 
 func DoKosarajuScc(edges [][]int) map[int][]int {
-	if edges == nil {
+	if edges == nil || len(edges) == 0 {
 		return make(map[int][]int)
 	}
+
 	g := make(map[int][]int)
-	for _, edge := range(edges) {
+	for _, edge := range edges {
 		from := edge[0]
-		to:=edge[1]
-		if _,ok:=g[from];!ok{
+		to := edge[1]
+		if _, ok :=g[from]; !ok {
 			g[from] = []int{}
 		}
 		g[from] = append(g[from], to)
 	}
 
-	isVistited := make(map[int]bool)
+	isVistited1 := make(map[int]bool)
 	finishStack := []int{}
-	for v,_:=range(g) {
-		dfsRount1(g, v, isVistited, &finishStack)
+	for v := range g {
+		dfs1(g, v, isVistited1, &finishStack)
 	}
 
-	revG := reverseG(g)
-	isVistited2 := make(map[int]bool)
+	rg := revg(g)
 	componments := make(map[int][]int)
-
+	isVistited2 := make(map[int]bool)
 	for len(finishStack) > 0 {
 		v := finishStack[len(finishStack)-1]
 		finishStack = finishStack[0:len(finishStack)-1]
+
 		componment := []int{}
-		dfsRound2(revG, v, isVistited2, &componment)
+		dfs2(rg, v, isVistited2, &componment)
 
 		if len(componment) > 0 {
 			sort.Ints(componment)
 			componments[componment[0]] = componment
 		}
 	}
-	
+
 	return componments
 }
 
-func dfsRount1(g map[int][]int, curV int, isVistited map[int]bool, finishStack *[]int) {
-	if _, ok := isVistited[curV];!ok {
-		isVistited[curV] = true
-		for _, toV := range(g[curV]) {
-			dfsRount1(g, toV, isVistited, finishStack)
+func dfs1(g map[int][]int, curVertex int, isVistited map[int]bool, finishStack *[]int) {
+	if _, ok := isVistited[curVertex]; !ok {
+		isVistited[curVertex] = true
+		for _, v := range g[curVertex] {
+			dfs1(g, v, isVistited, finishStack)
 		}
-		*finishStack = append(*finishStack, curV)
+		*finishStack = append(*finishStack, curVertex)
 	}
 }
 
-func reverseG(g map[int][]int) map[int][]int {
-	revG := make(map[int][]int)
+func revg(g map[int][]int) map[int][]int {
+	revg := make(map[int][]int)
 
-	for fromV, toVs := range(g) {
-		for _, v := range(toVs) {
-			if _, ok := revG[v];!ok{
-				revG[v] = []int{}
+	for fromV, toVs := range g {
+		for _, toV := range toVs {
+			if _,ok:=revg[toV];!ok {
+				revg[toV] = []int{}
 			}
 
-			revG[v] = append(revG[v], fromV)
+			revg[toV] = append(revg[toV], fromV)
 		}
 	}
 
-	return revG
+	return revg
 }
 
-func dfsRound2(g map[int][]int, curV int, isVistited map[int]bool, componment *[]int) {
-	if _, ok := isVistited[curV];!ok {
-		isVistited[curV] = true
-		for _, toV := range(g[curV]) {
-			dfsRound2(g, toV, isVistited, componment)
+func dfs2(g map[int][]int, curVertex int, isVistited map[int]bool, componment *[]int) {
+	if _,ok:=isVistited[curVertex];!ok {
+		isVistited[curVertex] = true
+		for _, v := range g[curVertex] {
+			dfs2(g, v, isVistited, componment)
 		}
-		*componment = append(*componment, curV)
+		*componment = append(*componment, curVertex)
 	}
-
 }
+
+
 
 
