@@ -30,6 +30,17 @@ public class KosarajuTest {
     private Object[] parametersForTestDoKosarajuScc() {
         return new Object[]{
                 new Object[]{
+                        null,
+                        new int[][]{
+                        }
+                },
+                new Object[]{
+                        new int[][]{
+                        },
+                        new int[][]{
+                        }
+                },
+                new Object[]{
                         new int[][]{
                                 new int[]{6,7},
                                 new int[]{7,0},
