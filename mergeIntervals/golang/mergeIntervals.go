@@ -25,16 +25,21 @@ func merge(intervals [][]int) [][]int {
 
 	sort.Sort(byFirstEle(intervals))
 
-	idx := 0
-	for idx<(len(intervals)-1) {
-		if (intervals[idx][1] >= intervals[idx+1][0]) {
-			if(intervals[idx][1] < intervals[idx+1][1]) {
-				intervals[idx][1] = intervals[idx+1][1]
-			}
-			intervals = append(intervals[0:idx+1], intervals[idx+2:]...)
+	first := intervals[0][0]
+	last :=intervals[0][1]
+	ans := [][]int{}
+	for idx, _ := range intervals {
+		if (idx==len(intervals)-1) {
+			ans = append(ans, []int{first, last})
+		} else if (last >= intervals[idx+1][0]) {
+			if(last < intervals[idx+1][1]) {
+				last = intervals[idx+1][1]
+			} 
 		} else {
-			idx++
+			ans = append(ans, []int{first, last})
+			first = intervals[idx+1][0]
+			last = intervals[idx+1][1]
 		}
 	}
-	return intervals
+	return ans
 }
