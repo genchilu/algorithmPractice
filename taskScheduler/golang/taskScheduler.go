@@ -14,42 +14,27 @@ func leastInterval(tasks []byte, n int) int {
 		return 1
 	}
 
-	tmp := make(map[byte]int)
-	for _, t := range tasks {
-		if v, ok := tmp[t];ok {
-			tmp[t] = v + 1
+	t := make([]int, 26)
+	
+	for _, b := range tasks {
+		t[b-'A']++
+	}
+
+	sort.Ints(t)
+	maxT := t[25]
+	idle := (maxT-1) * n
+	
+	for i:=24;i>=0&&idle>0;i-- {
+		if(t[i] == t[25]) {
+			idle -= (maxT-1)
 		} else {
-			tmp[t] = 1
+			idle -= t[i]
 		}
 	}
 
-	taskCount := 0
-	ts := make([]int, len(tmp))
-	c:=0
-	for _,v:=range tmp {
-		ts[c] = v
-		taskCount+=v
-		c++
+	if (idle < 0 ) {
+		idle = 0
 	}
 
-	sort.Sort(sort.Reverse(sort.IntSlice(ts)))
-
-	result := []int{}
-
-	for taskCount>0 {
-		for i:=0;i<=n;i++ {
-			if i<len(ts) && ts[i] > 0 {
-				taskCount--
-				ts[i]--
-			}
-
-			result = append(result, 0)
-			if taskCount == 0 {
-				break
-			}
-		}
-		sort.Sort(sort.Reverse(sort.IntSlice(ts)))
-	}
-
-    return len(result)
+    return len(tasks) + idle
 }
