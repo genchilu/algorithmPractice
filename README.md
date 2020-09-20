@@ -1,6 +1,8 @@
 # algorithmPractice
-## Coursera 線上課程的程式作業，用 golang 實作
+## Coursera HW
 * Stanford University
  * Tim Roughgarden, Associate Professor)
 * 機器學習基石 (Machine Learning Foundations) 
  * 林軒田教授
+
+ ## leetcode practice
