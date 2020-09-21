@@ -3,6 +3,7 @@ package accountsMerge
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"reflect"
 )
 
 
@@ -55,7 +56,18 @@ func TestAccountsMerge(t *testing.T) {
 
 	for _, testCase := range testCases {
 		actual := accountsMerge(testCase.accounts)
-		assert.Equal(t, testCase.expect, actual)
+		
+		assert.Equal(t, len(testCase.expect), len(actual))
+		equalCount := 0
+		for _, a1 := range actual {
+			for _, a2 := range testCase.expect {
+				if reflect.DeepEqual(a1, a2) {
+					equalCount++
+					break
+				}
+			}
+		}
+		assert.Equal(t, len(testCase.expect), equalCount)
 	}
 
 }

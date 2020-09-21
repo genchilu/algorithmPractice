@@ -9,59 +9,48 @@ func accountsMerge(accounts [][]string) [][]string {
 		return accounts
 	}
 
-	for i, account := range accounts {
-		sort.Strings(account[1:])
-		deduplicate := []string{}
-		for j:=0;j<len(account);{
-			e := account[j]
-			deduplicate = append(deduplicate, account[j])
-			for j<len(account) && account[j] == e {
-				j++
+	mailMailMap := make(map[string]map[string]bool)
+
+	for _, acc:=range accounts {
+		for i:=1;i<len(acc);i++{
+			if _,ok:=mailMailMap[acc[1]];!ok {
+				mailMailMap[acc[1]]= make(map[string]bool)
 			}
+			mailMailMap[acc[1]][acc[i]] = true
+
+			if _,ok:=mailMailMap[acc[i]];!ok {
+				mailMailMap[acc[i]]= make(map[string]bool)
+			}
+			mailMailMap[acc[i]][acc[1]] = true
 		}
-		accounts[i] = deduplicate
+
 	}
 
-	merged := [][]string{}
-	for i, account1 := range accounts {
-		if len(account1) == 0 {
-			continue
-		}
-
-		for j:=i+1;j<len(accounts);j++ {
-			account2 := accounts[j]
-			if len(account2) == 0 {
-				continue
-			}
-			shouldMerged := false
-			for k:=1;k<len(account2);k++{
-				email := account2[k]
-				idx := sort.SearchStrings(account1[1:], email) +1
-				if idx < len(account1) && account1[idx] == email {
-					shouldMerged = true
-					break
-				}
-			}
-			if shouldMerged {
-				for k:=1;k<len(account2);k++{
-					email := account2[k]
-					idx := sort.SearchStrings(account1[1:], email) + 1
-					if idx == len(account1) {
-						account1 = append(account1, email)
-					} else if account1[idx] != email {
-						tmp := append([]string{}, account1[idx:]...)
-						account1 = append(account1[0:idx], email)
-						account1 = append(account1, tmp...)
-					}
-				}
-
-				accounts[j] = []string{}
-				accounts[i] = account1
-				j=i
+	result := [][]string{}
+	used := make(map[string]bool)
+	for _, acc := range accounts {
+		if len(acc) == 1 {
+			result = append(result, []string{acc[0]})
+		} else {
+			if _,ok:=used[acc[1]];!ok {
+				mergeAcc := []string{acc[0]}
+				_dfs(mailMailMap, used, acc[1], &mergeAcc)
+				sort.Strings(mergeAcc[1:])
+				result = append(result, mergeAcc)
 			}
 		}
-		merged = append(merged, account1)
 	}
 
-	return merged
+	return result
 }
+
+func _dfs(mailMailMap map[string]map[string]bool, used map[string]bool, mail string, mails *[]string) {
+	if _,ok:=used[mail];!ok {
+		used[mail] = true
+		*mails = append(*mails, mail)
+		for e,_:= range mailMailMap[mail] {
+			_dfs(mailMailMap, used, e, mails)
+		}
+		//fmt.Printf("%v\n", mails)
+	}
+} 
