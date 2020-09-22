@@ -4,7 +4,7 @@ package isGraphBipartite
 
 type Msg struct {
 	idx int
-	color byte
+	color bool
 }
 
 func isBipartite(graph [][]int) bool {
@@ -17,15 +17,12 @@ func isBipartite(graph [][]int) bool {
 	}
 
 
-	colors := make([]byte, len(graph))
-	for i,_:=range colors {
-		colors[i] = 0
-	}
+	colors := make(map[int]bool)
 
 	for i, _ := range graph {
-		if colors[i] == byte(0) {
-			queue := []Msg{Msg{i, 1}}
-			result := _bfs(graph, &queue, &colors)
+		if _,ok := colors[i];!ok {
+			queue := []Msg{Msg{i, true}}
+			result := _bfs(graph, &queue, colors)
 			if !result {
 				return result
 			}
@@ -35,24 +32,22 @@ func isBipartite(graph [][]int) bool {
 	return true
 }
 
-func _bfs(graph [][]int, queue *[]Msg, colors *[]byte) bool {
+func _bfs(graph [][]int, queue *[]Msg, colors map[int]bool) bool {
 	msg := (*queue)[0]
 	*queue = (*queue)[1:]
-	idx := msg.idx
-	color := msg.color
 
-	if (*colors)[idx] == byte(0) {
-		(*colors)[idx] = color
-		nextColor := byte(1)
-		if color == nextColor {
-			nextColor = byte(2)
-		}
+	if c, ok := colors[msg.idx];!ok {
+		colors[msg.idx] = msg.color
 
-		for _, v := range graph[idx] {
-			msg := Msg{v, nextColor}
-			*queue = append(*queue, msg)
+		for _, v := range graph[msg.idx] {
+			if cc,ok:=colors[v];!ok {
+				smsg := Msg{v, !msg.color}
+				*queue = append(*queue, smsg)
+			} else if cc!=!msg.color{
+				return false
+			}
 		}
- 	} else if (*colors)[idx] != color {
+ 	} else if c != msg.color {
 		return false
 	}
 
