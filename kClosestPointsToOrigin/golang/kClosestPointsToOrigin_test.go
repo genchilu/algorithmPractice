@@ -46,7 +46,31 @@ func TestKClosest(t *testing.T) {
 				[]int{1,0},
 			},
 		},
+		{
+			[][]int{
+				[]int{68,97},
+				[]int{34,-84},
+				[]int{60,100},
+				[]int{2,31},
+				[]int{-27,-38},
+				[]int{-73,-74},
+				[]int{-55,-39},
+				[]int{62,91},
+				[]int{62,92},
+				[]int{-57,-67},
+			},
+			5,
+			[][]int{
+				[]int{-27,-38},
+				[]int{2,31},
+				[]int{-55,-39},
+				[]int{-57,-67},
+				[]int{34,-84},
+			},
+		},
 	}
+
+
 
 	for _, testCase := range testCases {
 		actual := KClosest(testCase.points, testCase.k)

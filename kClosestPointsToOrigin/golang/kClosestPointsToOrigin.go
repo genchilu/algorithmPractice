@@ -1,39 +1,53 @@
 package kClosestPointsToOrigin
 
-import "sort"
+import (
+	"container/heap"
+	//"fmt"
+)
+
+type IntHeap []int
+
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *IntHeap) Push(x interface{}) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	*h = append(*h, x.(int))
+}
+
+func (h *IntHeap) Pop() interface{} {
+	x := (*h)[len(*h)-1]
+	*h = (*h)[0:len(*h)-1]
+	return x
+}
 
 func KClosest(points [][]int, K int) [][]int {
 	if len(points) == 0 {
 		return [][]int{}
 	}
 
+	h := &IntHeap{}
+	heap.Init(h)
+
 	dmap := make(map[int][][]int)
-	ds := make([]int, len(points))
-	for i, p:=range points {
-		ds[i] = p[0] * p[0] + p[1] * p[1]
-		if _,ok:=dmap[ds[i]];ok{
-			dmap[ds[i]] = append(dmap[ds[i]], p)
+	for _, p:=range points {
+		e := p[0] * p[0] + p[1] * p[1]
+		if _,ok:=dmap[e];ok{
+			dmap[e] = append(dmap[e], p)
 		} else {
-			dmap[ds[i]] = [][]int{p}
+			dmap[e] = [][]int{p}
 		}
+		heap.Push(h,e)
 	}
-	sort.Ints(ds)
+
 
 	result := make([][]int, 0, K)
-	notbreak := true
-	for notbreak {
-		for _, v:= range ds {
-			for _,vv:=range dmap[v] {
-				result = append(result, vv)
-				if len(result) == K {
-					notbreak = false
-					break
-				}
-			}
-			if !notbreak {
-				break
-			}
-		}
+
+	for h.Len() >0 && len(result) < K{
+		v := heap.Pop(h).(int)
+		result = append(result, dmap[v]...)
 	}
 
     return result
