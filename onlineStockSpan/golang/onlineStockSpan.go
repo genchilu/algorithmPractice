@@ -1,26 +1,26 @@
 package onlineStockSpan
 
 type StockSpanner struct {
-	m   map[int]int
-	idx int
+	prices *[]int
+	counts *[]int
 }
 
 func Constructor() StockSpanner {
-	m := make(map[int]int)
-	return StockSpanner{m, 0}
+	prices := []int{}
+	counts := []int{}
+	return StockSpanner{&prices, &counts}
 }
 
 func (this *StockSpanner) Next(price int) int {
-
-	this.m[price] = this.idx
-	this.idx++
-
-	max := -1
-	for k, v := range this.m {
-		if k > price && v > max {
-			max = v
-		}
+	c := 1
+	for len((*this.prices)) > 0 && price >= (*this.prices)[len((*this.prices))-1] {
+		c += (*this.counts)[len((*this.counts))-1]
+		(*this.counts) = (*this.counts)[0 : len((*this.counts))-1]
+		(*this.prices) = (*this.prices)[0 : len((*this.prices))-1]
 	}
 
-	return this.idx - max - 1
+	(*this.prices) = append((*this.prices), price)
+	(*this.counts) = append((*this.counts), c)
+
+	return c
 }
