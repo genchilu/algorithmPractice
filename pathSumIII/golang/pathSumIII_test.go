@@ -19,6 +19,11 @@ func TestPathSum(t *testing.T) {
 			8,
 			3,
 		},
+		{
+			prepareTreeNode([]string{"1"}, 0, 0),
+			0,
+			0,
+		},
 	}
 
 	for _, testCase := range testCases {

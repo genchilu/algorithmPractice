@@ -7,36 +7,31 @@ type TreeNode struct {
 }
 
 func pathSum(root *TreeNode, sum int) int {
-	if root == nil {
-		return 0
-	}
-	return dfs(root, sum, []int{})
+	m := make(map[int]int)
+	return dfs(root, sum, 0, m)
 }
 
-func dfs(node *TreeNode, t int, ps []int) int {
-	cps := make([]int, len(ps))
-	copy(cps, ps)
-
+func dfs(node *TreeNode, t, s int, m map[int]int) int {
 	c := 0
-	for i, _ := range cps {
-		cps[i] += node.Val
-		if cps[i] == t {
-			c++
-		}
+	if node == nil {
+		return c
+	}
+	s += node.Val
+	if _, ok := m[s]; !ok {
+		m[s] = 0
 	}
 
-	cps = append(cps, node.Val)
-	if node.Val == t {
+	if s == t {
 		c++
 	}
 
-	if node.Left != nil {
-		c += dfs(node.Left, t, cps)
+	if _, ok := m[s-t]; ok {
+		c += m[s-t]
 	}
 
-	if node.Right != nil {
-		c += dfs(node.Right, t, cps)
-	}
+	m[s]++
+	c += dfs(node.Left, t, s, m) + dfs(node.Right, t, s, m)
+	m[s]--
 
 	return c
 }
