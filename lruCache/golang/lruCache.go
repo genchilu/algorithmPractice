@@ -1,56 +1,105 @@
 package lruCache
 
+type Node struct {
+	val  int
+	key  int
+	pre  *Node
+	next *Node
+}
+
 type LRUCache struct {
-	m  map[int]int
-	l  *[]int
-	lm map[int]int
-	c  int
+	m    map[int]*Node
+	c    int
+	head *Node
+	tail *Node
 }
 
 func Constructor(capacity int) LRUCache {
-	m := make(map[int]int)
-	c := capacity
-	l := []int{}
-	lm := make(map[int]int)
+	m := make(map[int]*Node)
 
-	return LRUCache{m, &l, lm, c}
+	return LRUCache{m, capacity, nil, nil}
 }
 
 func (this *LRUCache) Get(key int) int {
 	if v, ok := this.m[key]; ok {
-		this.updateLRU(key)
-		return v
+		this.updateLRU(v)
+		return v.val
 	}
 	return -1
 }
 
 func (this *LRUCache) Put(key int, value int) {
-	if _, ok := this.m[key]; !ok {
+	if v, ok := this.m[key]; ok {
+		this.updateLRU(v)
+		v.val = value
+	} else {
 		if len(this.m) == this.c {
-			ll := (*this.l)[len(*this.l)-1]
-			(*this.l) = (*this.l)[:len(*this.l)-1]
-			delete(this.m, ll)
-			delete(this.lm, ll)
+			l := this.head
+			if this.head.next != nil {
+				this.head.next.pre = nil
+			}
+			this.head = this.head.next
+
+			delete(this.m, l.key)
+		}
+		if this.head == nil {
+			node := Node{value, key, nil, nil}
+			this.m[key] = &node
+			this.head = &node
+			this.tail = &node
+		} else {
+			node := Node{value, key, nil, nil}
+			this.m[key] = &node
+			node.pre = this.tail
+			this.tail.next = &node
+			this.tail = &node
 		}
 	}
-	this.m[key] = value
-	this.updateLRU(key)
 }
 
-func (this *LRUCache) updateLRU(key int) {
-	if v, ok := this.lm[key]; ok {
-		for i := 0; i < v; i++ {
-			this.lm[(*this.l)[i]]++
-		}
-		(*this.l) = append((*this.l)[0:v], (*this.l)[v+1:]...)
-	} else {
-		for k, _ := range this.lm {
-			this.lm[k]++
-		}
+func (this *LRUCache) updateLRU(v *Node) {
+	if v.pre != nil && v.next != nil {
+		pre := v.pre
+		next := v.next
+
+		pre.next = next
+		next.pre = pre
+
+		this.tail.next = v
+		v.pre = this.tail
+		v.next = nil
+		this.tail = v
+	} else if v.pre == nil && v.next != nil {
+		next := v.next
+		next.pre = nil
+		this.head = next
+
+		this.tail.next = v
+		v.pre = this.tail
+		v.next = nil
+		this.tail = v
 	}
-	(*this.l) = append([]int{key}, (*this.l)...)
-	this.lm[key] = 0
 }
+
+// func (this *LRUCache) printList() {
+// 	cur := this.head
+// 	a := []int{}
+// 	b := []int{}
+// 	for cur != nil {
+// 		a = append(a, cur.key)
+// 		cur = cur.next
+// 	}
+
+// 	fmt.Printf("head to tail: %v\n", a)
+
+// 	cur = this.tail
+// 	for cur != nil {
+// 		b = append(b, cur.key)
+// 		cur = cur.pre
+// 	}
+
+// 	fmt.Printf("tail to head: %v\n", b)
+// }
 
 /**
  * Your LRUCache object will be instantiated and called as such:
