@@ -1,10 +1,5 @@
 package wordLadder
 
-type Msg struct {
-	idx int
-	d   int
-}
-
 func ladderLength(beginWord string, endWord string, wordList []string) int {
 	var bi int
 	for bi = 0; bi < len(wordList); bi++ {
@@ -18,35 +13,39 @@ func ladderLength(beginWord string, endWord string, wordList []string) int {
 	}
 
 	g := genGraph(wordList)
-	msg := Msg{bi, 1}
-	q := []Msg{msg}
-	d := len(wordList) + 1
+	q := []int{bi}
+	d := 1
+	found := false
+
 	for len(q) > 0 {
-		m := q[0]
-		q = q[1:]
-		//fmt.Printf("m.idx: %d, m.d:%d, wordList[m.idx]: %s\n", m.idx, m.d, wordList[m.idx])
-		if wordList[m.idx] == endWord {
-			if d >= m.d {
-				d = m.d
+		nq := []int{}
+		for _, v := range q {
+			if wordList[v] == endWord {
+				found = true
+				break
+			} else {
+				for _, vv := range g[v] {
+					//fmt.Printf("vv: %d, wordList[vv]: %s\n", vv, wordList[vv])
+					nq = append(nq, vv)
+				}
+				g[v] = []int{}
 			}
-		} else {
-			for _, vv := range g[m.idx] {
-				//fmt.Printf("vv: %d, wordList[vv]: %s\n", vv, wordList[vv])
-				mm := Msg{vv, m.d + 1}
-				q = append(q, mm)
-			}
-			g[m.idx] = []int{}
 		}
-		if d != len(wordList)+1 {
+
+		if found {
 			break
 		}
+
+		q = nq
+		d++
 	}
 
-	if d == len(wordList)+1 {
-		return 0
-	} else {
+	if found {
 		return d
+	} else {
+		return 0
 	}
+
 }
 
 func genGraph(ws []string) [][]int {
@@ -54,29 +53,28 @@ func genGraph(ws []string) [][]int {
 
 	for i := 0; i < len(ws); i++ {
 		adj := []int{}
-		for j := 0; j < len(ws); j++ {
-			if i != j {
-				if calculateDestance(ws[i], ws[j]) == 1 {
-					adj = append(adj, j)
-				}
+		for j := i + 1; j < len(ws); j++ {
+			if isAdj(ws[i], ws[j]) {
+				adj = append(adj, j)
+				g[i] = append(g[i], j)
+				g[j] = append(g[j], i)
 			}
 		}
-		g[i] = adj
 	}
 
 	return g
 }
-func calculateDestance(w1, w2 string) int {
-	d := 0
+
+func isAdj(w1, w2 string) bool {
+	diff := false
 	for i := 0; i < len(w1); i++ {
 		if w1[i] != w2[i] {
-			d++
-		}
-
-		if d == 2 {
-			break
+			if diff {
+				return false
+			}
+			diff = true
 		}
 	}
 
-	return d
+	return true
 }
