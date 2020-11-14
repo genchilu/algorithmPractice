@@ -22,6 +22,7 @@ func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 				} else {
 					parent.Right = nil
 				}
+				delete(pm, d)
 			}
 
 			if node.Left != nil {
@@ -32,7 +33,6 @@ func delNodes(root *TreeNode, to_delete []int) []*TreeNode {
 			}
 
 			delete(m, d)
-			delete(pm, d)
 			delete(fm, d)
 		}
 	}
