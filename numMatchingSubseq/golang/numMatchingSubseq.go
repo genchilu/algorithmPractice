@@ -1,50 +1,35 @@
 package numMatchingSubseq
 
-import (
-	"sort"
-)
-
 func numMatchingSubseq(S string, words []string) int {
-	c := 0
-	m := make(map[byte][]int)
+	m := make(map[byte][]string)
+
+	for _, w := range words {
+		if _, ok := m[w[0]]; !ok {
+			m[w[0]] = []string{}
+		}
+		m[w[0]] = append(m[w[0]], w)
+	}
+
 	for i := 0; i < len(S); i++ {
-		if _, ok := m[S[i]]; !ok {
-			m[S[i]] = []int{}
-		}
-		m[S[i]] = append(m[S[i]], i)
-	}
-	for _, s := range words {
-		if len(s) < len(S) && isSub(s, m) {
-			c++
-		}
-	}
-	return c
-}
-
-func isSub(sub string, m map[byte][]int) bool {
-
-	p := -1
-	for i := 0; i < len(sub); i++ {
-		if ps, ok := m[sub[i]]; ok {
-			j := sort.SearchInts(ps, p)
-			if j == len(ps) {
-				return false
-			}
-			newp := ps[j]
-
-			if newp == p {
-				if j < len(ps)-1 {
-					newp = ps[j+1]
-				} else {
-					return false
+		char := S[i]
+		if ws, ok := m[char]; ok {
+			delete(m, char)
+			for _, w := range ws {
+				//fmt.Printf("%s\n", w)
+				if len(w) > 1 {
+					//fmt.Printf("%s put into m\n", w)
+					w = w[1:]
+					if _, ok2 := m[w[0]]; !ok2 {
+						m[w[0]] = []string{}
+					}
+					m[w[0]] = append(m[w[0]], w)
 				}
 			}
-
-			p = newp
-		} else {
-			return false
 		}
 	}
-
-	return true
+	c := 0
+	for _, v := range m {
+		c += len(v)
+	}
+	return len(words) - c
 }
