@@ -2,31 +2,19 @@ package pairsOfSongsWithTotalDurationsDivisibleBy60
 
 func numPairsDivisibleBy60(time []int) int {
 
-	m := make(map[int][]int)
-	for i, v := range time {
-
-		r := v % 60
-		if _, ok := m[r]; !ok {
-			m[r] = []int{}
-		}
-		m[r] = append(m[r], i)
-	}
+	m := make([]int, 60)
 
 	c := 0
-	for i, v := range time {
+	for _, v := range time {
 
 		r := v % 60
-		if r != 0 {
-			r = 60 - r
+		if r == 0 {
+			c += m[0]
+		} else {
+			c += m[60-r]
 		}
-		if _, ok := m[r]; ok {
-			for _, v := range m[r] {
-				if v != i {
-					c++
-				}
-			}
-		}
+		m[r]++
 	}
-	return c / 2
+	return c
 
 }
