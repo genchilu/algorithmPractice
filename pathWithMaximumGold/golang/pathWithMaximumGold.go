@@ -9,8 +9,7 @@ func getMaximumGold(grid [][]int) int {
 	max := 0
 	for i, _ := range grid {
 		for j, _ := range grid[i] {
-			clone := getClone(grid)
-			tmp := findMax(clone, i, j)
+			tmp := findMax(grid, i, j)
 			if tmp > max {
 				max = tmp
 			}
@@ -25,52 +24,30 @@ func findMax(grid [][]int, i, j int) int {
 	}
 
 	value := grid[i][j]
+	grid[i][j] = 0
 	max := 0
-	cloneUp := getClone(grid)
-	cloneUp[i][j] = 0
 
-	cloneDown := getClone(cloneUp)
-
-	cloneLeft := getClone(cloneUp)
-
-	cloneRight := getClone(cloneUp)
-
-	tmp := findMax(cloneUp, i-1, j)
+	tmp := findMax(grid, i-1, j)
 	if tmp > max {
 		max = tmp
-		grid = cloneUp
 	}
 
-	tmp = findMax(cloneDown, i+1, j)
+	tmp = findMax(grid, i+1, j)
 	if tmp > max {
 		max = tmp
-		grid = cloneDown
 	}
 
-	tmp = findMax(cloneLeft, i, j-1)
+	tmp = findMax(grid, i, j-1)
 	if tmp > max {
 		max = tmp
-		grid = cloneLeft
 	}
 
-	tmp = findMax(cloneRight, i, j+1)
+	tmp = findMax(grid, i, j+1)
 	if tmp > max {
 		max = tmp
-		grid = cloneRight
 	}
 
+	grid[i][j] = value
 	return max + value
 
-}
-
-func getClone(grid [][]int) [][]int {
-	clone := make([][]int, len(grid))
-
-	for i, _ := range grid {
-		tmp := make([]int, len(grid[i]))
-		copy(tmp, grid[i])
-		clone[i] = tmp
-	}
-
-	return clone
 }
