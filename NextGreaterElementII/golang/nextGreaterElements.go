@@ -1,25 +1,33 @@
 package nextGreaterElements
 
+type INum struct {
+	idx int
+	val int
+}
+
 func nextGreaterElements(nums []int) []int {
+
 	result := make([]int, len(nums))
-	for i, _ := range result {
+	for i := range result {
 		result[i] = -1
 	}
+	stack := []INum{}
+	for i := 0; i < 2; i++ {
+		for j := len(nums) - 1; j >= 0; j-- {
 
-	for i, v := range nums {
-		if i > 0 && nums[i-1] == v {
-			result[i] = result[i-1]
-		} else {
-			for j := 1; j <= len(nums); j++ {
-				idx := j + i
-				if idx >= len(nums) {
-					idx -= len(nums)
-				}
-				if nums[idx] > v {
-					result[i] = nums[idx]
+			for len(stack) > 0 {
+				l := len(stack) - 1
+				if stack[l].val > nums[j] {
+					if result[j] == -1 {
+						result[j] = stack[l].val
+					}
 					break
+				} else {
+					stack = stack[0:l]
 				}
 			}
+
+			stack = append(stack, INum{idx: j, val: nums[j]})
 		}
 	}
 	return result
