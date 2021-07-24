@@ -1,34 +1,26 @@
 package kokoEatingBananas
 
-import (
-	"math"
-	"sort"
-)
-
 func minEatingSpeed(piles []int, h int) int {
-	sum := 0
-	for _, v := range piles {
-		sum += v
-	}
 
-	sort.Ints(piles)
+	l := 1
+	r := 1000000000
 
-	min := int(math.Ceil(float64(sum) / float64(h)))
+	for l < r {
+		m := (l + r) / 2
 
-	for {
-		tmp := h
-		for i := len(piles) - 1; i >= 0; i-- {
-			c := int(math.Ceil(float64(piles[i]) / float64(min)))
-			tmp -= c
-			if tmp < 0 {
-				min++
+		c := 0
+		for _, v := range piles {
+			c += ((v - 1) / m) + 1
+			if c > h {
 				break
 			}
 		}
 
-		if tmp >= 0 {
-			break
+		if c > h {
+			l = m + 1
+		} else {
+			r = m
 		}
 	}
-	return min
+	return l
 }
