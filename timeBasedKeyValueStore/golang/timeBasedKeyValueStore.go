@@ -25,16 +25,18 @@ func (this *TimeMap) Set(key string, value string, timestamp int) {
 
 func (this *TimeMap) Get(key string, timestamp int) string {
 	if items, ok := this.m[key]; ok {
-		l, r := 0, len(items)-1
-		for l <= r {
+		l, r := 0, len(items)
+		for l < r {
 			m := (l + r) / 2
 
-			if items[m].t > timestamp {
-				r = m - 1
-			} else if items[m].t < timestamp {
+			if items[m].t == timestamp {
+				return items[m].v
+			}
+
+			if timestamp > items[m].t {
 				l = m + 1
 			} else {
-				return items[m].v
+				r = m
 			}
 		}
 
