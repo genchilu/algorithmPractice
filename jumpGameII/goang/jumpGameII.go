@@ -5,24 +5,29 @@ func jump(nums []int) int {
 		return 0
 	}
 
-	dp := make([]int, len(nums))
+	cur, next, step := 0, 0, 0
+	for cur < len(nums)-1 {
+		step++
 
-	r := back(&nums, &dp, len(nums)-1)
+		if next >= len(nums)-1 {
+			break
+		}
+		idx, max := 0, 0
 
-	return r
-}
-
-func back(nums, dp *[]int, pos int) int {
-
-	if pos > 0 && (*dp)[pos] == 0 {
-		for i := 1; (pos - i) >= 0; i++ {
-			if (*nums)[pos-i] >= i {
-				(*dp)[pos] = 1 + back(nums, dp, pos-i)
+		for pad := 1; pad <= nums[cur] && pad+cur < len(nums); pad++ {
+			d := nums[pad+cur] + cur + pad
+			// fmt.Printf("111 idx: %d, d: %d, max: %d\n", pad+cur, d, max)
+			if d >= max || d >= len(nums)-1 {
+				max = d
+				idx = cur + pad
 			}
 		}
+
+		cur = idx
+		next = max
+		//fmt.Printf("cur: %d, next: %d\n", cur, next)
+
 	}
 
-	//fmt.Printf("pos: %d,  %v\n", pos, dp)
-
-	return (*dp)[pos]
+	return step
 }

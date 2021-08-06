@@ -20,6 +20,26 @@ func TestDev(t *testing.T) {
 			[]int{2, 3, 0, 1, 4},
 			2,
 		},
+		{
+			[]int{1, 2},
+			1,
+		},
+		{
+			[]int{1, 2, 3},
+			2,
+		},
+		{
+			[]int{3, 2, 1},
+			1,
+		},
+		{
+			[]int{2, 3, 1},
+			1,
+		},
+		{
+			[]int{2, 3, 1, 1, 4},
+			2,
+		},
 	}
 
 	for _, testCase := range testCases {
