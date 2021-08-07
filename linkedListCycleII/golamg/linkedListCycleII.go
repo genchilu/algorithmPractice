@@ -26,6 +26,7 @@ func detectCycle(head *ListNode) *ListNode {
 	if s == head {
 		return s
 	}
+
 	s = head
 
 	for {
