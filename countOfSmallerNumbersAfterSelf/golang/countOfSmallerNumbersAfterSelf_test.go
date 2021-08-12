@@ -30,11 +30,3 @@ func TestDev(t *testing.T) {
 		assert.Equal(t, testCase.expect, actual)
 	}
 }
-
-func TestDev2(t *testing.T) {
-	s := []int{1, 2, 3}
-
-	e := []int{1, 2, 4, 3}
-
-	assert.Equal(t, e, insert(s, 2, 4))
-}
