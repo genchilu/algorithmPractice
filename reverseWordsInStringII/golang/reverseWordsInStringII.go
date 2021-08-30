@@ -1,33 +1,25 @@
 package reverseWordsInStringII
 
 func reverseWords(s []byte) {
-	r := []byte{}
+	reverse(s)
 
 	start := 0
-	for i := range s {
+	for i := 0; i < len(s); i++ {
 		if s[i] == ' ' {
-			tmp := make([]byte, i-start)
-			copy(tmp, s[start:i])
-			r = append(tmp, r...)
-			r = append([]byte{' '}, r...)
-
-			// fmt.Printf("%s\n", string(tmp))
+			reverse(s[start:i])
 			start = i + 1
 		}
 	}
 
-	tmp := make([]byte, len(s)-start)
-	copy(tmp, s[start:])
-	// fmt.Printf("%s\n", string(tmp))
+	reverse(s[start:])
 
-	r = append(tmp, r...)
-	// fmt.Printf("%s\n", string(s))
-	// fmt.Printf("%s\n", string(r))
+}
 
-	// fmt.Printf("9999 %d, %d\n", len(r), len(s))
+func reverse(s []byte) {
 
-	for i := range r {
-		s[i] = r[i]
+	l := len(s) - 1
+	for i := 0; i < len(s)/2; i++ {
+		s[i], s[l-i] = s[l-i], s[i]
 	}
-	// fmt.Printf("1111 %s\n", string(s))
+
 }
