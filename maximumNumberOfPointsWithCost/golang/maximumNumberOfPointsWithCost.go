@@ -2,37 +2,34 @@ package maximumNumberOfPointsWithCost
 
 func maxPoints(points [][]int) int64 {
 
-	dp := make([][]int, len(points))
-	for i := range points {
-		dp[i] = make([]int, len(points[0]))
-		if i == 0 {
-			for j := range points[0] {
-				dp[i][j] = points[i][j]
-			}
-		}
+	dp := make([]int, len(points[0]))
+	for i := range points[0] {
+		dp[i] = points[0][i]
 	}
 
-	r := 0
+	//fmt.Printf("111 %v\n", dp)
+
 	for i := 1; i < len(points); i++ {
+		tmp := make([]int, len(dp))
+		copy(tmp, dp)
 		for j := range points[i] {
 			max := 0
-			for k := range points[i-1] {
-				v := dp[i-1][k] - abs(k-j)
+			//fmt.Printf("222 %v\n", tmp)
+			for k := range tmp {
+				v := tmp[k] - abs(k-j)
 				if v > max {
 					max = v
 				}
 			}
-			dp[i][j] = max + points[i][j]
-			if dp[i][j] > r {
-				r = dp[i][j]
-			}
+			dp[j] = max + points[i][j]
 		}
+		//fmt.Printf("333 %v\n", dp)
 	}
 
 	max := 0
-	for i := range dp[len(dp)-1] {
-		if dp[len(points)-1][i] > max {
-			max = dp[len(dp)-1][i]
+	for i := range dp {
+		if dp[i] > max {
+			max = dp[i]
 		}
 	}
 
