@@ -5,3 +5,6 @@
 /*/java/gradlew
 /*/java/gradlew.bat
 /*/python3/__pycache__/
+/**/*.iml
+/**/*.xml
+/**/target
