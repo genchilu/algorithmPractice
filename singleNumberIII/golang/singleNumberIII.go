@@ -2,19 +2,18 @@ package singleNumberIII
 
 func singleNumber(nums []int) []int {
 
-	m := make(map[int]bool)
-
+	bitmask := 0
 	for _, v := range nums {
-		if _, ok := m[v]; ok {
-			delete(m, v)
-		} else {
-			m[v] = true
+		bitmask ^= v
+	}
+
+	diff := -bitmask & bitmask
+
+	a := 0
+	for _, v := range nums {
+		if v&diff != 0 {
+			a ^= v
 		}
 	}
-
-	result := []int{}
-	for k, _ := range m {
-		result = append(result, k)
-	}
-	return result
+	return []int{a, a ^ bitmask}
 }
