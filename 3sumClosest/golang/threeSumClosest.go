@@ -1,41 +1,41 @@
 package threeSumClosest
 
+import (
+	"math"
+	"sort"
+)
+
 func threeSumClosest(nums []int, target int) int {
 
-	return findClosedum(nums, 0, 3, target)
+	sort.Ints(nums)
 
-}
+	min, result := math.MaxInt64, 0
+	i, j, k := 0, 1, len(nums)-1
+	for i < len(nums) {
 
-func findClosedum(nums []int, i, l, target int) int {
-
-	if l == 1 {
-		min := myabs(target - nums[i])
-		sum := nums[i]
-		for j := i + 1; j < len(nums); j++ {
-			tmp := myabs(target - nums[j])
+		for j < k {
+			sum := (nums[i] + nums[j] + nums[k])
+			tmp := myabs(target - sum)
 			if tmp < min {
+				result = sum
 				min = tmp
-				sum = nums[j]
+			}
+
+			if sum > target {
+				k--
+			} else if sum < target {
+				j++
+			} else {
+				return sum
 			}
 		}
-		return sum
-
-	} else if len(nums)-i == l {
-		sum := 0
-		for j := i; j < len(nums); j++ {
-			sum += nums[j]
-		}
-
-		return sum
-	} else {
-		s1 := nums[i] + findClosedum(nums, i+1, l-1, target-nums[i])
-		s2 := findClosedum(nums, i+1, l, target)
-		if myabs(target-s1) < myabs(target-s2) {
-			return s1
-		} else {
-			return s2
-		}
+		i++
+		j = i + 1
+		k = len(nums) - 1
 	}
+
+	return result
+
 }
 
 func myabs(a int) int {
